@@ -11,10 +11,15 @@
       <div class="title-card">
         <p class="eyebrow">Tribute Rhythm Game</p>
         <h1>Moonwalk Mania</h1>
-        <p class="subtitle">
-          Step into the spotlight with moonwalk energy. Match the cues with tight timing, build
-          multipliers, and keep the dance floor glowing with MJ-inspired flair.
-        </p>
+        <p class="subtitle">Step in, hit the beats, and keep the glow alive.</p>
+        <div class="title-tutorial">
+          <p class="eyebrow">Quick Tutorial</p>
+          <ol>
+            <li>Press Start Show to launch the beat.</li>
+            <li>Use arrow keys or WASD on the hit line.</li>
+            <li>Perfect hits boost your multiplier fast.</li>
+          </ol>
+        </div>
         <div class="title-actions">
           <button id="titleStartButton" class="primary">Enter the Show</button>
           <button id="titleSkipButton" class="ghost">Skip to Game</button>
@@ -56,10 +61,7 @@
         <div>
           <p class="eyebrow">Tribute Rhythm Game</p>
           <h1>Moonwalk Mania</h1>
-          <p class="subtitle">
-            Step into the spotlight with moonwalk energy. Match the cues with tight timing, build
-            multipliers, and keep the dance floor glowing with MJ-inspired flair.
-          </p>
+          <p class="subtitle">Match the cues with tight timing and build your multiplier.</p>
         </div>
         <div class="stage">
           <div class="spotlight"></div>
@@ -87,7 +89,7 @@
         <button class="menu-tab" data-tab="leaderboard">Leaderboard</button>
         <button class="menu-tab" data-tab="admin">Admin Console</button>
       </nav>
-      <p class="menu-hint">Open the <strong>Admin Console</strong> tab to manage advanced show settings.</p>
+      <p class="menu-hint">Choose a tab to play, learn, or review your best scores.</p>
 
       <main class="game">
         <section class="panel panel-wide">
@@ -218,9 +220,7 @@
           <ul>
             <li>Hit the beat inside the timing window to score.</li>
             <li>Perfect hits raise your multiplier faster.</li>
-            <li>Missed beats reset your streak but the show continues.</li>
-            <li>Finish the 75-second set to lock in your high score.</li>
-            <li>Keep the groove smooth to avoid losing the spotlight.</li>
+            <li>Missed beats reset your streak.</li>
           </ul>
         </section>
 
@@ -245,42 +245,37 @@
           <div class="spotlight-grid">
             <div class="spotlight-card">
               <h3>Iconic Albums</h3>
-              <p>
-                <strong>Thriller</strong>, <strong>Bad</strong>, and <strong>Dangerous</strong> set new
-                standards for pop production, storytelling, and global reach.
-              </p>
+              <p><strong>Thriller</strong>, <strong>Bad</strong>, and <strong>Dangerous</strong> raised the bar.</p>
             </div>
             <div class="spotlight-card">
               <h3>Signature Moves</h3>
-              <p>
-                The moonwalk, the lean, and razor-sharp spins made his performances feel cinematic
-                and helped define modern choreography.
-              </p>
+              <p>Moonwalks, leans, and spins shaped modern choreography.</p>
             </div>
             <div class="spotlight-card">
               <h3>Stagecraft</h3>
-              <p>
-                Every show blended precision lighting, fashion, and storytelling, elevating concerts
-                into full-scale theatrical events.
-              </p>
+              <p>Precision lighting and fashion turned concerts into theater.</p>
             </div>
             <div class="spotlight-card">
               <h3>Legacy</h3>
-              <p>
-                His humanitarian work, music videos, and crossover sound continue to influence
-                artists across genres.
-              </p>
+              <p>Music videos and humanitarian work still inspire artists.</p>
             </div>
           </div>
         </section>
 
         <section class="panel tab-panel" data-panel="learn">
           <h2>Legend Learning Lab</h2>
-          <p class="hint">
-            Between songs, test your knowledge with quick questions inspired by Michael Jackson’s
-            life, music, and impact.
-          </p>
+          <p class="hint">Play the quiz game to unlock facts while you learn.</p>
           <div class="quiz" id="quiz">
+            <div class="quiz-stats">
+              <div>
+                <span class="label">Quiz Score</span>
+                <span id="quizScore" class="value">0</span>
+              </div>
+              <div>
+                <span class="label">Correct Streak</span>
+                <span id="quizStreak" class="value">0</span>
+              </div>
+            </div>
             <div class="quiz-question" id="quizQuestion">Press “Start Quiz” to begin.</div>
             <div class="quiz-choices" id="quizChoices"></div>
             <div class="quiz-feedback" id="quizFeedback">Ready to learn something new?</div>

@@ -26,6 +26,8 @@ const quizChoices = document.getElementById("quizChoices");
 const quizFeedback = document.getElementById("quizFeedback");
 const quizStartButton = document.getElementById("quizStartButton");
 const quizNextButton = document.getElementById("quizNextButton");
+const quizScoreEl = document.getElementById("quizScore");
+const quizStreakEl = document.getElementById("quizStreak");
 const menuTabs = Array.from(document.querySelectorAll(".menu-tab"));
 const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
 const adminLog = document.getElementById("adminLog");
@@ -100,6 +102,8 @@ let currentLevel = 1;
 let quizIndex = 0;
 let quizActive = false;
 let quizAnswered = false;
+let quizScore = 0;
+let quizStreak = 0;
 let showAdmin = false;
 let adminUnlocked = false;
 let adminRevealed = false;
@@ -220,6 +224,66 @@ const quizItems = [
     choices: ["Smooth Criminal", "Beat It", "Black or White", "Remember the Time"],
     answer: 0,
     fact: "The anti-gravity lean from Smooth Criminal became an iconic stage illusion.",
+  },
+  {
+    question: "Which Motown TV special featured MJ's moonwalk debut?",
+    choices: ["Motown 25", "Soul Train", "American Bandstand", "The Ed Sullivan Show"],
+    answer: 0,
+    fact: "Motown 25: Yesterday, Today, Forever aired in 1983.",
+  },
+  {
+    question: "Which album includes the song “Billie Jean”?",
+    choices: ["Off the Wall", "Thriller", "Bad", "Dangerous"],
+    answer: 1,
+    fact: "Billie Jean is a centerpiece of Thriller.",
+  },
+  {
+    question: "MJ's 1987 tour was named after which album?",
+    choices: ["Bad", "Thriller", "Dangerous", "HIStory"],
+    answer: 0,
+    fact: "The Bad World Tour ran from 1987 to 1989.",
+  },
+  {
+    question: "Which song features the famous “Annie, are you OK?” lyric?",
+    choices: ["Smooth Criminal", "Beat It", "Man in the Mirror", "The Way You Make Me Feel"],
+    answer: 0,
+    fact: "Smooth Criminal includes the “Annie, are you OK?” refrain.",
+  },
+  {
+    question: "Which MJ album came out in 1991?",
+    choices: ["Dangerous", "Bad", "Off the Wall", "Thriller"],
+    answer: 0,
+    fact: "Dangerous launched in 1991 and expanded his sound.",
+  },
+  {
+    question: "Which music video features a zombie dance routine?",
+    choices: ["Thriller", "Beat It", "Bad", "Remember the Time"],
+    answer: 0,
+    fact: "Thriller's choreographed dance remains iconic.",
+  },
+  {
+    question: "Which song was a charity anthem released in 1985?",
+    choices: ["We Are the World", "Heal the World", "Earth Song", "Will You Be There"],
+    answer: 0,
+    fact: "We Are the World raised funds for humanitarian aid.",
+  },
+  {
+    question: "Which MJ song opens with a heartbeat sound?",
+    choices: ["Beat It", "Billie Jean", "Dangerous", "Rock With You"],
+    answer: 0,
+    fact: "Beat It starts with a heartbeat sound effect.",
+  },
+  {
+    question: "Which MJ song features a rival dance crew storyline?",
+    choices: ["Beat It", "Bad", "Smooth Criminal", "Black or White"],
+    answer: 0,
+    fact: "Beat It pairs music with a story of ending a rivalry.",
+  },
+  {
+    question: "Which MJ tour supported the HIStory album?",
+    choices: ["HIStory World Tour", "Bad World Tour", "Dangerous World Tour", "Victory Tour"],
+    answer: 0,
+    fact: "The HIStory World Tour ran from 1996 to 1997.",
   },
 ];
 
@@ -879,6 +943,11 @@ const renderQuizQuestion = () => {
   });
 };
 
+const updateQuizStats = () => {
+  if (quizScoreEl) quizScoreEl.textContent = quizScore;
+  if (quizStreakEl) quizStreakEl.textContent = quizStreak;
+};
+
 const handleQuizChoice = (button, index) => {
   if (quizAnswered) return;
   const item = quizItems[quizIndex];
@@ -893,15 +962,22 @@ const handleQuizChoice = (button, index) => {
     choiceButton.disabled = true;
   });
   if (index === item.answer) {
+    quizScore += 1;
+    quizStreak += 1;
     quizFeedback.textContent = `Correct! ${item.fact}`;
   } else {
+    quizStreak = 0;
     quizFeedback.textContent = `Not quite. ${item.fact}`;
   }
+  updateQuizStats();
 };
 
 const startQuiz = () => {
   quizActive = true;
   quizIndex = 0;
+  quizScore = 0;
+  quizStreak = 0;
+  updateQuizStats();
   renderQuizQuestion();
 };
 
@@ -1220,6 +1296,10 @@ document.addEventListener("keydown", (event) => {
   const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(tagName);
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key.toLowerCase();
 
+  if (isTyping) {
+    return;
+  }
+
   if (!isTyping) {
     if (key === ADMIN_SEQUENCE[adminSequenceIndex]) {
       adminSequenceIndex += 1;
@@ -1360,6 +1440,7 @@ updateStats();
 updateQueue();
 applyLevel(currentLevel);
 resetTimingCoach();
+updateQuizStats();
 setActiveTab("play");
 showAdmin = true;
 setAdminUnlocked(false);
