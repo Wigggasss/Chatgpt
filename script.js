@@ -14,6 +14,7 @@ const messageEl = document.getElementById("message");
 const moveCards = Array.from(document.querySelectorAll(".move-card"));
 const queueList = document.getElementById("queueList");
 const lane = document.getElementById("lane");
+const pageBody = document.body;
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -334,6 +335,15 @@ const playMetronome = () => {
   oscillator.stop(audioContext.currentTime + 0.08);
 };
 
+const triggerScreenEffect = () => {
+  pageBody.classList.remove("screen-shake", "screen-flash");
+  void pageBody.offsetWidth;
+  pageBody.classList.add("screen-shake", "screen-flash");
+  setTimeout(() => {
+    pageBody.classList.remove("screen-shake", "screen-flash");
+  }, 260);
+};
+
 const keyMap = {
   ArrowLeft: "left",
   ArrowUp: "up",
@@ -348,6 +358,7 @@ const keyMap = {
 document.addEventListener("keydown", (event) => {
   const move = keyMap[event.key];
   if (move) {
+    triggerScreenEffect();
     handleMove(move);
   }
   if (event.key === " ") {
