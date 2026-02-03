@@ -110,6 +110,50 @@ body {
   align-self: start;
 }
 
+.leaderboard-list {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.leaderboard-list li {
+  background: #1b1b2f;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--text);
+}
+
+.signup-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.signup-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.signup-form input,
+.signup-form select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #15152a;
+  color: var(--text);
+}
+
+.signup-summary {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(89, 214, 122, 0.12);
+  color: var(--text);
+}
+
 .timing-feedback {
   margin-top: 12px;
   padding: 12px 14px;

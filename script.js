@@ -37,6 +37,12 @@ const adminCode = document.getElementById("adminCode");
 const adminUnlock = document.getElementById("adminUnlock");
 const adminReveal = document.getElementById("adminReveal");
 const adminRole = document.getElementById("adminRole");
+const leaderboardList = document.getElementById("leaderboardList");
+const signupForm = document.getElementById("signupForm");
+const signupName = document.getElementById("signupName");
+const signupTrack = document.getElementById("signupTrack");
+const signupLevel = document.getElementById("signupLevel");
+const signupSummary = document.getElementById("signupSummary");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -90,6 +96,7 @@ let adminRevealed = false;
 let audioContext = null;
 
 const ADMIN_ACCESS_CODE = "moonwalk";
+const PRESET_COUNT = 100;
 const ADMIN_ROLES = {
   viewer: {
     label: "Viewer",
@@ -151,6 +158,7 @@ const ADMIN_ROLES = {
   },
 };
 let adminRoleState = "viewer";
+const leaderboard = JSON.parse(localStorage.getItem("moonwalk-leaderboard") || "[]");
 
 const storedHigh = Number(localStorage.getItem("moonwalk-high")) || 0;
 highScoreEl.textContent = storedHigh;
@@ -289,6 +297,16 @@ const logAbout = () => {
   appendAdminLog("Moonwalk Mania Admin Console: manage tempo, cues, level flow, and show pacing.");
 };
 
+const applyPreset = (index) => {
+  const tempo = 80 + index;
+  const duration = 60 + Math.floor(index / 2);
+  updateTempo(tempo);
+  gameConfig.duration = duration;
+  timeLeft = Math.min(timeLeft, gameConfig.duration);
+  updateStats();
+  appendAdminLog(`Preset ${index} applied: ${tempo} BPM, duration ${duration}s.`);
+};
+
 const saveShowState = () => {
   const payload = {
     level: currentLevel,
@@ -367,6 +385,34 @@ const updateHighScore = () => {
     localStorage.setItem("moonwalk-high", score);
     highScoreEl.textContent = score;
   }
+};
+
+const renderLeaderboard = () => {
+  if (!leaderboardList) return;
+  leaderboardList.innerHTML = "";
+  const topScores = leaderboard.slice(0, 10);
+  if (!topScores.length) {
+    leaderboardList.innerHTML = "<li>No scores yet. Be the first!</li>";
+    return;
+  }
+  topScores.forEach((entry) => {
+    const item = document.createElement("li");
+    item.textContent = `${entry.name} · ${entry.score} pts · Lv ${entry.level}`;
+    leaderboardList.appendChild(item);
+  });
+};
+
+const addLeaderboardEntry = (finalScore) => {
+  const profile = JSON.parse(localStorage.getItem("moonwalk-profile") || "{}");
+  leaderboard.push({
+    name: profile.name || "Guest",
+    score: finalScore,
+    level: currentLevel,
+  });
+  leaderboard.sort((a, b) => b.score - a.score);
+  leaderboard.splice(10);
+  localStorage.setItem("moonwalk-leaderboard", JSON.stringify(leaderboard));
+  renderLeaderboard();
 };
 
 const resetLane = () => {
@@ -503,6 +549,7 @@ const endGame = () => {
   clearInterval(timerId);
   cancelAnimationFrame(animationId);
   updateHighScore();
+  addLeaderboardEntry(score);
   setMessage(`Final bow! You scored ${score} points.`, "end");
   pauseButton.disabled = true;
   pauseButton.textContent = "Pause";
@@ -748,6 +795,7 @@ const handleAdminCommand = () => {
   if (!raw) return;
   const [command, ...args] = raw.toLowerCase().split(" ");
   let handled = true;
+  const presetMatch = command.match(/^preset(\d{1,3})$/);
 
   if (!canRun(command) && !["help", "status", "about"].includes(command)) {
     appendAdminLog("Permission denied for this command.", "error");
@@ -762,6 +810,7 @@ const handleAdminCommand = () => {
           `Commands for ${ADMIN_ROLES[adminRoleState].label}:`,
           ADMIN_ROLES[adminRoleState].commands.join(", "),
           "Common: help, status, about",
+          "Presets: preset1 ... preset100",
         ].join(" ")
       );
       break;
@@ -915,6 +964,13 @@ const handleAdminCommand = () => {
     case "load":
       loadShowState();
       break;
+    case "leaderboard":
+      renderLeaderboard();
+      appendAdminLog("Leaderboard refreshed.");
+      break;
+    case "profile":
+      appendAdminLog(localStorage.getItem("moonwalk-profile") || "No profile saved.");
+      break;
     case "score": {
       const value = Number(args[0]);
       if (Number.isNaN(value)) {
@@ -948,7 +1004,16 @@ const handleAdminCommand = () => {
       break;
     }
     default:
-      handled = false;
+      if (presetMatch) {
+        const value = Number(presetMatch[1]);
+        if (value >= 1 && value <= PRESET_COUNT) {
+          applyPreset(value);
+        } else {
+          appendAdminLog("Preset out of range (1-100).", "error");
+        }
+      } else {
+        handled = false;
+      }
   }
 
   if (!handled) {
@@ -1060,6 +1125,22 @@ if (adminReveal) {
   adminReveal.addEventListener("click", toggleAdminPanel);
 }
 
+if (signupForm) {
+  signupForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const profile = {
+      name: signupName.value.trim(),
+      track: signupTrack.value.trim(),
+      level: signupLevel.value,
+    };
+    localStorage.setItem("moonwalk-profile", JSON.stringify(profile));
+    if (signupSummary) {
+      signupSummary.classList.remove("hidden");
+      signupSummary.textContent = `Saved! ${profile.name} · ${profile.track} · ${profile.level.toUpperCase()}`;
+    }
+  });
+}
+
 updateStats();
 updateQueue();
 applyLevel(currentLevel);
@@ -1068,3 +1149,4 @@ setActiveTab("play");
 showAdmin = true;
 setAdminUnlocked(false);
 setAdminRole("viewer");
+renderLeaderboard();
