@@ -16,21 +16,6 @@
             Step into the spotlight with moonwalk energy. Match the cues with tight timing, build
             multipliers, and keep the dance floor glowing with MJ-inspired flair.
           </p>
-          <div class="actions">
-            <button id="startButton" class="primary">Start Show</button>
-            <button id="pauseButton" class="ghost" disabled>Pause</button>
-            <button id="resetButton" class="ghost">Reset</button>
-          </div>
-          <div class="toggles">
-            <label class="toggle">
-              <input type="checkbox" id="soundToggle" checked />
-              <span>Metronome</span>
-            </label>
-            <label class="toggle">
-              <input type="checkbox" id="autoAdvanceToggle" checked />
-              <span>Auto-advance cues</span>
-            </label>
-          </div>
         </div>
         <div class="stage">
           <div class="spotlight"></div>
@@ -50,8 +35,34 @@
         </div>
       </header>
 
+      <nav class="menu">
+        <button class="menu-tab active" data-tab="play">Play</button>
+        <button class="menu-tab" data-tab="learn">Learn</button>
+        <button class="menu-tab" data-tab="levels">Levels</button>
+        <button class="menu-tab" data-tab="controls">Controls</button>
+        <button class="menu-tab" data-tab="admin">Admin</button>
+      </nav>
+
       <main class="game">
-        <section class="panel">
+        <section class="panel panel-wide">
+          <div class="actions">
+            <button id="startButton" class="primary">Start Show</button>
+            <button id="pauseButton" class="ghost" disabled>Pause</button>
+            <button id="resetButton" class="ghost">Reset</button>
+          </div>
+          <div class="toggles">
+            <label class="toggle">
+              <input type="checkbox" id="soundToggle" checked />
+              <span>Metronome</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="autoAdvanceToggle" checked />
+              <span>Auto-advance cues</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel tab-panel" data-panel="play">
           <h2>Performance</h2>
           <div class="stats">
             <div>
@@ -93,7 +104,7 @@
           <div class="message" id="message">Hit start to begin the show.</div>
         </section>
 
-        <section class="panel">
+        <section class="panel tab-panel" data-panel="play">
           <h2>Beat Lane</h2>
           <div class="lane" id="lane">
             <div class="target">
@@ -125,7 +136,7 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel tab-panel" data-panel="play">
           <h2>Move Deck</h2>
           <div class="move-grid" id="moveGrid">
             <div class="move-card" data-move="left">
@@ -151,7 +162,7 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel tab-panel" data-panel="levels">
           <h2>Show Levels</h2>
           <div class="levels" id="levels">
             <button class="level-button active" data-level="1">Club Intro</button>
@@ -161,7 +172,7 @@
           <p class="hint">Higher levels speed up the beat and reward bigger scores.</p>
         </section>
 
-        <section class="panel">
+        <section class="panel tab-panel" data-panel="controls">
           <h2>Show Rules</h2>
           <ul>
             <li>Hit the beat inside the timing window to score.</li>
@@ -172,21 +183,41 @@
           </ul>
         </section>
 
-        <section class="panel">
-          <h2>About Michael Jackson</h2>
-          <p class="bio">
-            Michael Jackson (1958–2009) is celebrated as the “King of Pop.” He helped redefine
-            performance and music videos with releases like <em>Thriller</em>, <em>Bad</em>, and
-            <em>Dangerous</em>, while popularizing moves such as the moonwalk and the lean.
-          </p>
-          <p class="bio">
-            This game is a tribute to his iconic stagecraft, fashion, and dance vocabulary. Explore
-            his legacy, music, and humanitarian work to learn more about the artist who shaped
-            modern pop culture.
-          </p>
+        <section class="panel tab-panel" data-panel="learn">
+          <h2>Michael Jackson Spotlight</h2>
+          <div class="spotlight-grid">
+            <div class="spotlight-card">
+              <h3>Iconic Albums</h3>
+              <p>
+                <strong>Thriller</strong>, <strong>Bad</strong>, and <strong>Dangerous</strong> set new
+                standards for pop production, storytelling, and global reach.
+              </p>
+            </div>
+            <div class="spotlight-card">
+              <h3>Signature Moves</h3>
+              <p>
+                The moonwalk, the lean, and razor-sharp spins made his performances feel cinematic
+                and helped define modern choreography.
+              </p>
+            </div>
+            <div class="spotlight-card">
+              <h3>Stagecraft</h3>
+              <p>
+                Every show blended precision lighting, fashion, and storytelling, elevating concerts
+                into full-scale theatrical events.
+              </p>
+            </div>
+            <div class="spotlight-card">
+              <h3>Legacy</h3>
+              <p>
+                His humanitarian work, music videos, and crossover sound continue to influence
+                artists across genres.
+              </p>
+            </div>
+          </div>
         </section>
 
-        <section class="panel">
+        <section class="panel tab-panel" data-panel="learn">
           <h2>Legend Learning Lab</h2>
           <p class="hint">
             Between songs, test your knowledge with quick questions inspired by Michael Jackson’s
@@ -199,6 +230,18 @@
             <div class="quiz-actions">
               <button id="quizStartButton" class="primary">Start Quiz</button>
               <button id="quizNextButton" class="ghost" disabled>Next Question</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel tab-panel" data-panel="admin">
+          <h2>Admin Console</h2>
+          <p class="hint">Use commands to control the show. Type <strong>help</strong> to list commands.</p>
+          <div class="admin-console">
+            <div id="adminLog" class="admin-log" aria-live="polite"></div>
+            <div class="admin-input">
+              <input id="adminCommand" type="text" placeholder="Enter command (e.g. level 2)" autocomplete="off" />
+              <button id="adminRun" class="primary">Run</button>
             </div>
           </div>
         </section>

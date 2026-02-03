@@ -26,6 +26,11 @@ const quizChoices = document.getElementById("quizChoices");
 const quizFeedback = document.getElementById("quizFeedback");
 const quizStartButton = document.getElementById("quizStartButton");
 const quizNextButton = document.getElementById("quizNextButton");
+const menuTabs = Array.from(document.querySelectorAll(".menu-tab"));
+const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
+const adminLog = document.getElementById("adminLog");
+const adminCommand = document.getElementById("adminCommand");
+const adminRun = document.getElementById("adminRun");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -72,6 +77,7 @@ let currentLevel = 1;
 let quizIndex = 0;
 let quizActive = false;
 let quizAnswered = false;
+let showAdmin = false;
 
 let audioContext = null;
 
@@ -140,6 +146,24 @@ const resetTimingCoach = () => {
   if (timingHint) {
     timingHint.textContent = "Nail the center for maximum points.";
   }
+};
+
+const setActiveTab = (tab) => {
+  menuTabs.forEach((button) => {
+    button.classList.toggle("active", button.dataset.tab === tab);
+  });
+  tabPanels.forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.panel === tab);
+  });
+};
+
+const appendAdminLog = (text, tone = "info") => {
+  if (!adminLog) return;
+  const line = document.createElement("div");
+  line.className = `log-line ${tone}`;
+  line.textContent = text;
+  adminLog.appendChild(line);
+  adminLog.scrollTop = adminLog.scrollHeight;
 };
 
 const highlightMove = (move) => {
@@ -340,6 +364,9 @@ const resetGame = () => {
   pauseButton.disabled = true;
   pauseButton.textContent = "Pause";
   startButton.disabled = false;
+  if (showAdmin) {
+    appendAdminLog("Game reset.");
+  }
 };
 
 const registerHit = (move, timing, offset) => {
@@ -532,6 +559,97 @@ const applyLevel = (level) => {
     });
   }
   setMessage(`Level ${level}: ${config.label}`, "level");
+  if (showAdmin) {
+    appendAdminLog(`Level set to ${level} (${config.label}).`);
+  }
+};
+
+const updateTempo = (value) => {
+  const tempo = Number(value);
+  if (Number.isNaN(tempo) || tempo <= 0) return false;
+  gameConfig.beatInterval = Math.max(320, Math.round(60000 / tempo));
+  levelConfig[currentLevel].tempo = tempo;
+  updateStats();
+  return true;
+};
+
+const handleAdminCommand = () => {
+  if (!adminCommand) return;
+  const raw = adminCommand.value.trim();
+  if (!raw) return;
+  const [command, ...args] = raw.toLowerCase().split(" ");
+  let handled = true;
+
+  switch (command) {
+    case "help":
+      appendAdminLog("Commands: help, start, pause, reset, level <1-3>, tempo <bpm>, score <amount>, streak <amount>, hint <text>");
+      break;
+    case "start":
+      startGame();
+      appendAdminLog("Show started.");
+      break;
+    case "pause":
+      pauseGame();
+      appendAdminLog(isPaused ? "Show paused." : "Show resumed.");
+      break;
+    case "reset":
+      resetGame();
+      appendAdminLog("Show reset.");
+      break;
+    case "level": {
+      const level = Number(args[0]);
+      if (levelConfig[level]) {
+        applyLevel(level);
+      } else {
+        appendAdminLog("Unknown level. Try 1, 2, or 3.", "error");
+      }
+      break;
+    }
+    case "tempo": {
+      const ok = updateTempo(args[0]);
+      appendAdminLog(ok ? `Tempo set to ${levelConfig[currentLevel].tempo} BPM.` : "Tempo must be a number.", ok ? "info" : "error");
+      break;
+    }
+    case "score": {
+      const value = Number(args[0]);
+      if (Number.isNaN(value)) {
+        appendAdminLog("Score must be a number.", "error");
+      } else {
+        score = Math.max(0, Math.round(value));
+        updateStats();
+        appendAdminLog(`Score set to ${score}.`);
+      }
+      break;
+    }
+    case "streak": {
+      const value = Number(args[0]);
+      if (Number.isNaN(value)) {
+        appendAdminLog("Streak must be a number.", "error");
+      } else {
+        streak = Math.max(0, Math.round(value));
+        updateStats();
+        appendAdminLog(`Streak set to ${streak}.`);
+      }
+      break;
+    }
+    case "hint": {
+      const hint = args.join(" ");
+      if (!hint) {
+        appendAdminLog("Hint cannot be empty.", "error");
+      } else {
+        setMessage(hint);
+        appendAdminLog("Hint updated on stage.");
+      }
+      break;
+    }
+    default:
+      handled = false;
+  }
+
+  if (!handled) {
+    appendAdminLog("Unknown command. Type help for options.", "error");
+  }
+  adminCommand.value = "";
 };
 
 const keyMap = {
@@ -573,6 +691,12 @@ if (levelsEl) {
   });
 }
 
+if (menuTabs.length) {
+  menuTabs.forEach((button) => {
+    button.addEventListener("click", () => setActiveTab(button.dataset.tab));
+  });
+}
+
 if (quizStartButton) {
   quizStartButton.addEventListener("click", startQuiz);
 }
@@ -581,7 +705,22 @@ if (quizNextButton) {
   quizNextButton.addEventListener("click", nextQuizQuestion);
 }
 
+if (adminRun) {
+  adminRun.addEventListener("click", handleAdminCommand);
+}
+
+if (adminCommand) {
+  adminCommand.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      handleAdminCommand();
+    }
+  });
+}
+
 updateStats();
 updateQueue();
 applyLevel(currentLevel);
 resetTimingCoach();
+setActiveTab("play");
+showAdmin = true;
+appendAdminLog("Admin console ready. Type help to list commands.");

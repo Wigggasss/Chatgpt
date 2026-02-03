@@ -30,6 +30,56 @@ body {
   padding: 32px 24px 56px;
 }
 
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(20, 20, 40, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.menu-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.menu-tab.active {
+  color: var(--text);
+  border-color: rgba(243, 183, 60, 0.6);
+  background: rgba(243, 183, 60, 0.12);
+  box-shadow: 0 0 16px rgba(243, 183, 60, 0.25);
+}
+
+.menu-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.panel-wide {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
 .timing-feedback {
   margin-top: 12px;
   padding: 12px 14px;
@@ -651,14 +701,24 @@ button:hover:not(:disabled) {
   box-shadow: 0 0 18px rgba(243, 183, 60, 0.25);
 }
 
-.bio {
-  color: var(--muted);
-  line-height: 1.6;
-  margin: 0 0 12px;
+.spotlight-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-.bio:last-child {
-  margin-bottom: 0;
+.spotlight-card {
+  background: #1b1b2f;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.spotlight-card h3 {
+  margin-top: 0;
+  color: var(--text);
 }
 
 .quiz {
@@ -714,6 +774,53 @@ button:hover:not(:disabled) {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.admin-console {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-log {
+  background: #101025;
+  border-radius: 16px;
+  padding: 12px;
+  min-height: 120px;
+  max-height: 240px;
+  overflow-y: auto;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.85rem;
+  color: #9bd8ff;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-log .log-line {
+  margin-bottom: 8px;
+}
+
+.admin-log .log-line:last-child {
+  margin-bottom: 0;
+}
+
+.admin-input {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-input input {
+  flex: 1 1 220px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #15152a;
+  color: var(--text);
+}
+
+.admin-input input:focus-visible {
+  outline: 2px solid rgba(255, 183, 60, 0.6);
+  outline-offset: 2px;
 }
 
 ul {
