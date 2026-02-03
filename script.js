@@ -1179,6 +1179,11 @@ const keyMap = {
 };
 
 document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "a") {
+    setActiveTab("admin");
+    event.preventDefault();
+    return;
+  }
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   const move = keyMap[key];
   if (move) {

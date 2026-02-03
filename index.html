@@ -48,11 +48,6 @@
 
       <main class="game">
         <section class="panel panel-wide">
-          <div class="actions">
-            <button id="startButton" class="primary">Start Show</button>
-            <button id="pauseButton" class="ghost" disabled>Pause</button>
-            <button id="resetButton" class="ghost">Reset</button>
-          </div>
           <div class="toggles">
             <label class="toggle">
               <input type="checkbox" id="soundToggle" checked />
@@ -326,9 +321,9 @@
       </main>
     </div>
     <div class="control-dock" aria-label="Show controls">
-      <button class="control-dock__button primary" data-action="start">Start Show</button>
-      <button class="control-dock__button ghost" data-action="pause">Pause/Resume</button>
-      <button class="control-dock__button ghost" data-action="reset">Reset</button>
+      <button id="startButton" class="control-dock__button primary" data-action="start">Start Show</button>
+      <button id="pauseButton" class="control-dock__button ghost" data-action="pause" disabled>Pause/Resume</button>
+      <button id="resetButton" class="control-dock__button ghost" data-action="reset">Reset</button>
     </div>
     <script src="script.js"></script>
   </body>
