@@ -181,6 +181,12 @@ const setAdminUnlocked = (unlocked) => {
   if (adminPanel) {
     adminPanel.classList.toggle("hidden", !unlocked);
   }
+  if (adminCommand) {
+    adminCommand.disabled = !unlocked;
+  }
+  if (adminRun) {
+    adminRun.disabled = !unlocked;
+  }
   if (unlocked) {
     appendAdminLog("Admin access granted. Type help to see commands.");
   }
@@ -607,7 +613,17 @@ const handleAdminCommand = () => {
 
   switch (command) {
     case "help":
-      appendAdminLog("Commands: help, start, pause, reset, level <1-3>, tempo <bpm>, score <amount>, streak <amount>, hint <text>");
+      appendAdminLog(
+        [
+          "Commands:",
+          "help, start, pause, reset, level <1-3>, tempo <bpm>",
+          "score <amount>, streak <amount>, hint <text>",
+          "sound <on|off>, cues <on|off>, duration <seconds>",
+          "addtime <seconds>, window <perfect|good|okay> <ms>",
+          "multiplier <value>, accuracy <value>",
+          "theme <default|neon>",
+        ].join(" ")
+      );
       break;
     case "start":
       startGame();
@@ -633,6 +649,97 @@ const handleAdminCommand = () => {
     case "tempo": {
       const ok = updateTempo(args[0]);
       appendAdminLog(ok ? `Tempo set to ${levelConfig[currentLevel].tempo} BPM.` : "Tempo must be a number.", ok ? "info" : "error");
+      break;
+    }
+    case "sound": {
+      const value = args[0];
+      if (value === "on" || value === "off") {
+        soundToggle.checked = value === "on";
+        appendAdminLog(`Metronome ${soundToggle.checked ? "enabled" : "disabled"}.`);
+      } else {
+        appendAdminLog("Sound must be 'on' or 'off'.", "error");
+      }
+      break;
+    }
+    case "cues": {
+      const value = args[0];
+      if (value === "on" || value === "off") {
+        autoAdvanceToggle.checked = value === "on";
+        appendAdminLog(`Auto-advance cues ${autoAdvanceToggle.checked ? "enabled" : "disabled"}.`);
+      } else {
+        appendAdminLog("Cues must be 'on' or 'off'.", "error");
+      }
+      break;
+    }
+    case "duration": {
+      const value = Number(args[0]);
+      if (Number.isNaN(value) || value <= 10) {
+        appendAdminLog("Duration must be a number greater than 10.", "error");
+      } else {
+        gameConfig.duration = Math.round(value);
+        timeLeft = Math.min(timeLeft, gameConfig.duration);
+        updateStats();
+        appendAdminLog(`Show duration set to ${gameConfig.duration}s.`);
+      }
+      break;
+    }
+    case "addtime": {
+      const value = Number(args[0]);
+      if (Number.isNaN(value)) {
+        appendAdminLog("Add time must be a number.", "error");
+      } else {
+        timeLeft = Math.max(0, Math.round(timeLeft + value));
+        updateStats();
+        appendAdminLog(`Added ${value}s. Time left: ${timeLeft}s.`);
+      }
+      break;
+    }
+    case "window": {
+      const slot = args[0];
+      const value = Number(args[1]);
+      if (!["perfect", "good", "okay"].includes(slot) || Number.isNaN(value)) {
+        appendAdminLog("Window usage: window <perfect|good|okay> <ms>", "error");
+      } else {
+        gameConfig[`${slot}Window`] = Math.max(40, Math.round(value));
+        appendAdminLog(`${slot} window set to ${gameConfig[`${slot}Window`]}ms.`);
+      }
+      break;
+    }
+    case "multiplier": {
+      const value = Number(args[0]);
+      if (Number.isNaN(value) || value < 1) {
+        appendAdminLog("Multiplier must be a number greater than 0.", "error");
+      } else {
+        streak = Math.round((value - 1) / 0.2) * gameConfig.comboStep;
+        updateStats();
+        appendAdminLog(`Multiplier adjusted to ${getMultiplier().toFixed(1)}x.`);
+      }
+      break;
+    }
+    case "accuracy": {
+      const value = Number(args[0]);
+      if (Number.isNaN(value) || value < 0 || value > 100) {
+        appendAdminLog("Accuracy must be 0-100.", "error");
+      } else {
+        accuracy = { hits: value, total: 100 };
+        updateStats();
+        appendAdminLog(`Accuracy set to ${getAccuracy()}%.`);
+      }
+      break;
+    }
+    case "theme": {
+      const value = args[0];
+      if (value === "neon") {
+        document.documentElement.style.setProperty("--accent", "#59d67a");
+        document.documentElement.style.setProperty("--accent-2", "#5db7ff");
+        appendAdminLog("Theme set to neon.");
+      } else if (value === "default") {
+        document.documentElement.style.setProperty("--accent", "#f3b73c");
+        document.documentElement.style.setProperty("--accent-2", "#ff5da2");
+        appendAdminLog("Theme reset to default.");
+      } else {
+        appendAdminLog("Theme options: default, neon.", "error");
+      }
       break;
     }
     case "score": {
