@@ -1,4 +1,4 @@
 # Chatgpt
 Chatgpt testing
 
-Website: [Moonwalk Mania](index.html)
+Website: [Moonwalk Mania](https://wigggasss.github.io/Chatgpt/)
