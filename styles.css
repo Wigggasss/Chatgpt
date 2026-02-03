@@ -125,6 +125,10 @@ body {
   color: var(--text);
 }
 
+.menu-tab[data-tab="admin"] {
+  display: none;
+}
+
 
 .tab-panel {
   display: none;

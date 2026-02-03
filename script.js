@@ -1345,7 +1345,7 @@ if (signupForm) {
 }
 
 if (titleStartButton) {
-  titleStartButton.addEventListener("click", () => setScreen("game"));
+  titleStartButton.addEventListener("click", () => setScreen("signup"));
 }
 
 if (titleSkipButton) {
@@ -1366,4 +1366,4 @@ setAdminUnlocked(false);
 setAdminRole("viewer");
 renderLeaderboard();
 renderAdminUsers();
-setScreen("game");
+setScreen("title");
