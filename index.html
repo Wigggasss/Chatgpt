@@ -284,7 +284,7 @@
           <div id="signupSummary" class="signup-summary hidden"></div>
         </section>
 
-        <section class="panel tab-panel" data-panel="admin">
+        <section class="panel tab-panel admin-section" data-panel="admin" id="adminSection">
           <h2>Admin Console</h2>
           <p class="hint">Use commands to control the show. Type <strong>help</strong> to list commands.</p>
           <div class="admin-console">
@@ -314,9 +314,11 @@
                   type="text"
                   placeholder="Enter command (e.g. level 2)"
                   autocomplete="off"
+                  list="adminCommandList"
                   disabled
                 />
                 <button id="adminRun" class="primary" disabled>Run</button>
+                <datalist id="adminCommandList"></datalist>
               </div>
             </div>
           </div>

@@ -37,6 +37,7 @@ const adminCode = document.getElementById("adminCode");
 const adminUnlock = document.getElementById("adminUnlock");
 const adminReveal = document.getElementById("adminReveal");
 const adminRole = document.getElementById("adminRole");
+const adminCommandList = document.getElementById("adminCommandList");
 const leaderboardList = document.getElementById("leaderboardList");
 const signupForm = document.getElementById("signupForm");
 const signupName = document.getElementById("signupName");
@@ -99,6 +100,13 @@ let audioContext = null;
 
 const ADMIN_ACCESS_CODE = "moonwalk";
 const PRESET_COUNT = 100;
+const THEME_PRESETS = {
+  default: { accent: "#f3b73c", accent2: "#ff5da2", lane: "#191933" },
+  neon: { accent: "#59d67a", accent2: "#5db7ff", lane: "#14142b" },
+  starlight: { accent: "#8ad5ff", accent2: "#a855f7", lane: "#1a1830" },
+  midnight: { accent: "#f59e0b", accent2: "#22d3ee", lane: "#0f172a" },
+  royal: { accent: "#f472b6", accent2: "#facc15", lane: "#1f1b2f" },
+};
 const ADMIN_ROLES = {
   viewer: {
     label: "Viewer",
@@ -275,6 +283,7 @@ const setAdminRole = (role) => {
   if (adminRole) {
     adminRole.textContent = `Role: ${ADMIN_ROLES[adminRoleState].label}`;
   }
+  renderCommandList();
 };
 
 const canRun = (command) => ADMIN_ROLES[adminRoleState].commands.includes(command);
@@ -285,6 +294,33 @@ const canRunForProfile = (command, profile) => {
     if (ADMIN_ROLES[profile.role].commands.includes(command)) return true;
   }
   return (profile.customCommands || []).includes(command);
+};
+
+const renderCommandList = () => {
+  if (!adminCommandList) return;
+  adminCommandList.innerHTML = "";
+  const commands = new Set([
+    ...ADMIN_ROLES[adminRoleState].commands,
+    "help",
+    "status",
+    "about",
+    "leaderboard",
+    "profile",
+    "permissions",
+  ]);
+  for (let i = 1; i <= PRESET_COUNT; i += 1) {
+    commands.add(`preset${i}`);
+  }
+  Object.keys(THEME_PRESETS).forEach((theme) => {
+    commands.add(`theme ${theme}`);
+  });
+  Array.from(commands)
+    .sort()
+    .forEach((command) => {
+      const option = document.createElement("option");
+      option.value = command;
+      adminCommandList.appendChild(option);
+    });
 };
 
 const toggleAdminPanel = () => {
@@ -1006,16 +1042,14 @@ const handleAdminCommand = () => {
     }
     case "theme": {
       const value = args[0];
-      if (value === "neon") {
-        document.documentElement.style.setProperty("--accent", "#59d67a");
-        document.documentElement.style.setProperty("--accent-2", "#5db7ff");
-        appendAdminLog("Theme set to neon.");
-      } else if (value === "default") {
-        document.documentElement.style.setProperty("--accent", "#f3b73c");
-        document.documentElement.style.setProperty("--accent-2", "#ff5da2");
-        appendAdminLog("Theme reset to default.");
+      if (THEME_PRESETS[value]) {
+        const theme = THEME_PRESETS[value];
+        document.documentElement.style.setProperty("--accent", theme.accent);
+        document.documentElement.style.setProperty("--accent-2", theme.accent2);
+        document.documentElement.style.setProperty("--lane", theme.lane);
+        appendAdminLog(`Theme set to ${value}.`);
       } else {
-        appendAdminLog("Theme options: default, neon.", "error");
+        appendAdminLog(`Theme options: ${Object.keys(THEME_PRESETS).join(", ")}.`, "error");
       }
       break;
     }
@@ -1145,7 +1179,8 @@ const keyMap = {
 };
 
 document.addEventListener("keydown", (event) => {
-  const move = keyMap[event.key];
+  const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+  const move = keyMap[key];
   if (move) {
     handleMove(move);
     event.preventDefault();
