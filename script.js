@@ -15,10 +15,17 @@ const moveCards = Array.from(document.querySelectorAll(".move-card"));
 const queueList = document.getElementById("queueList");
 const lane = document.getElementById("lane");
 const timingFeedback = document.getElementById("timingFeedback");
+const timingHint = document.getElementById("timingHint");
+const coachMarker = document.getElementById("coachMarker");
 const levelEl = document.getElementById("level");
 const tempoEl = document.getElementById("tempo");
 const levelsEl = document.getElementById("levels");
 const dancer = document.querySelector(".dancer-3d");
+const quizQuestion = document.getElementById("quizQuestion");
+const quizChoices = document.getElementById("quizChoices");
+const quizFeedback = document.getElementById("quizFeedback");
+const quizStartButton = document.getElementById("quizStartButton");
+const quizNextButton = document.getElementById("quizNextButton");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -62,11 +69,41 @@ let beatId = 0;
 let beats = [];
 let accuracy = { hits: 0, total: 0 };
 let currentLevel = 1;
+let quizIndex = 0;
+let quizActive = false;
+let quizAnswered = false;
 
 let audioContext = null;
 
 const storedHigh = Number(localStorage.getItem("moonwalk-high")) || 0;
 highScoreEl.textContent = storedHigh;
+
+const quizItems = [
+  {
+    question: "Which Michael Jackson album is the best-selling album of all time?",
+    choices: ["Bad", "Thriller", "Dangerous", "Off the Wall"],
+    answer: 1,
+    fact: "Thriller (1982) is the best-selling album worldwide and revolutionized music videos.",
+  },
+  {
+    question: "Which dance move did Michael Jackson famously debut on TV in 1983?",
+    choices: ["The moonwalk", "The robot", "The twist", "The Charleston"],
+    answer: 0,
+    fact: "The moonwalk debut happened during the Motown 25 performance of “Billie Jean.”",
+  },
+  {
+    question: "What was the name of MJ’s 1992-1993 world tour?",
+    choices: ["Victory Tour", "Bad World Tour", "Dangerous World Tour", "History Tour"],
+    answer: 2,
+    fact: "The Dangerous World Tour promoted the album Dangerous and supported global charities.",
+  },
+  {
+    question: "Which MJ song features the iconic lean-forward choreography?",
+    choices: ["Smooth Criminal", "Beat It", "Black or White", "Remember the Time"],
+    answer: 0,
+    fact: "The anti-gravity lean from Smooth Criminal became an iconic stage illusion.",
+  },
+];
 
 const setMessage = (text, tone = "") => {
   messageEl.textContent = text;
@@ -77,6 +114,32 @@ const setTimingFeedback = (text, tone) => {
   if (!timingFeedback) return;
   timingFeedback.textContent = text;
   timingFeedback.className = `timing-feedback ${tone}`;
+};
+
+const updateTimingCoach = (offset, tone) => {
+  if (!coachMarker) return;
+  const maxWindow = gameConfig.okayWindow;
+  const clamped = Math.max(-maxWindow, Math.min(maxWindow, offset));
+  const percent = 50 - (clamped / maxWindow) * 50;
+  coachMarker.style.left = `${percent}%`;
+  if (timingHint) {
+    if (tone === "perfect") {
+      timingHint.textContent = "On time! Centered hit.";
+    } else if (offset > 0) {
+      timingHint.textContent = `Early by ${Math.round(offset)}ms`;
+    } else {
+      timingHint.textContent = `Late by ${Math.round(Math.abs(offset))}ms`;
+    }
+  }
+};
+
+const resetTimingCoach = () => {
+  if (coachMarker) {
+    coachMarker.style.left = "50%";
+  }
+  if (timingHint) {
+    timingHint.textContent = "Nail the center for maximum points.";
+  }
 };
 
 const highlightMove = (move) => {
@@ -273,12 +336,13 @@ const resetGame = () => {
   updateStats();
   setMessage("Hit start to begin the show.");
   setTimingFeedback("Hit the beat to hear your timing callout.", "");
+  resetTimingCoach();
   pauseButton.disabled = true;
   pauseButton.textContent = "Pause";
   startButton.disabled = false;
 };
 
-const registerHit = (move, timing) => {
+const registerHit = (move, timing, offset) => {
   accuracy.hits += 1;
   accuracy.total += 1;
   streak += 1;
@@ -300,7 +364,7 @@ const registerHit = (move, timing) => {
     frequency = 620;
   } else {
     base = 130;
-    message = "Nice!";
+    message = "Good!";
     timingTone = "okay";
     frequency = 520;
   }
@@ -308,10 +372,13 @@ const registerHit = (move, timing) => {
   const pointsAwarded = Math.round(base * multiplier * levelConfig[currentLevel].scoreBoost);
   score += pointsAwarded;
   setFeedback(move, "hit");
-  setMessage(`${message} +${pointsAwarded} points`, "hit");
-  setTimingFeedback(message, timingTone);
+  const offsetLabel =
+    timingTone === "perfect" ? "On time" : offset > 0 ? `Early ${Math.round(offset)}ms` : `Late ${Math.round(Math.abs(offset))}ms`;
+  setMessage(`${message} (${offsetLabel}) +${pointsAwarded} points`, "hit");
+  setTimingFeedback(`${message} · ${offsetLabel}`, timingTone);
   playHitSound(frequency);
   updateDancerMove(move, timingTone);
+  updateTimingCoach(offset, timingTone);
 };
 
 const registerMiss = (move) => {
@@ -322,6 +389,7 @@ const registerMiss = (move) => {
   setTimingFeedback("Miss", "miss");
   playHitSound(240);
   updateDancerMove(move, "miss");
+  updateTimingCoach(gameConfig.okayWindow, "miss");
 };
 
 const handleMove = (move) => {
@@ -342,8 +410,9 @@ const handleMove = (move) => {
   }
 
   const { beat, diff } = candidates[0];
+  const offset = beat.targetTime - now;
   if (diff <= gameConfig.okayWindow) {
-    registerHit(move, diff);
+    registerHit(move, diff, offset);
     beat.element.classList.add("hit");
     beat.element.remove();
     beats = beats.filter((item) => item.id !== beat.id);
@@ -377,7 +446,7 @@ const playHitSound = (frequency) => {
   }
   const oscillator = audioContext.createOscillator();
   const gain = audioContext.createGain();
-  oscillator.type = "sine";
+  oscillator.type = frequency >= 700 ? "triangle" : "sine";
   oscillator.frequency.value = frequency;
   gain.gain.value = 0.08;
   oscillator.connect(gain);
@@ -396,6 +465,58 @@ const updateDancerMove = (move, timingTone) => {
   } else {
     dancer.classList.add("pose");
   }
+};
+
+const renderQuizQuestion = () => {
+  if (!quizQuestion || !quizChoices || !quizFeedback) return;
+  const item = quizItems[quizIndex];
+  if (!item) return;
+  quizQuestion.textContent = item.question;
+  quizChoices.innerHTML = "";
+  quizAnswered = false;
+  quizFeedback.textContent = "Choose an answer to learn a quick fact.";
+  quizNextButton.disabled = true;
+
+  item.choices.forEach((choice, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "quiz-choice";
+    button.textContent = choice;
+    button.addEventListener("click", () => handleQuizChoice(button, index));
+    quizChoices.appendChild(button);
+  });
+};
+
+const handleQuizChoice = (button, index) => {
+  if (quizAnswered) return;
+  const item = quizItems[quizIndex];
+  quizAnswered = true;
+  quizNextButton.disabled = false;
+  Array.from(quizChoices.children).forEach((choiceButton, choiceIndex) => {
+    if (choiceIndex === item.answer) {
+      choiceButton.classList.add("correct");
+    } else if (choiceIndex === index) {
+      choiceButton.classList.add("incorrect");
+    }
+    choiceButton.disabled = true;
+  });
+  if (index === item.answer) {
+    quizFeedback.textContent = `Correct! ${item.fact}`;
+  } else {
+    quizFeedback.textContent = `Not quite. ${item.fact}`;
+  }
+};
+
+const startQuiz = () => {
+  quizActive = true;
+  quizIndex = 0;
+  renderQuizQuestion();
+};
+
+const nextQuizQuestion = () => {
+  if (!quizActive) return;
+  quizIndex = (quizIndex + 1) % quizItems.length;
+  renderQuizQuestion();
 };
 
 const applyLevel = (level) => {
@@ -452,6 +573,15 @@ if (levelsEl) {
   });
 }
 
+if (quizStartButton) {
+  quizStartButton.addEventListener("click", startQuiz);
+}
+
+if (quizNextButton) {
+  quizNextButton.addEventListener("click", nextQuizQuestion);
+}
+
 updateStats();
 updateQueue();
 applyLevel(currentLevel);
+resetTimingCoach();

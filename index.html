@@ -107,6 +107,22 @@
           </div>
           <p class="hint">Press the arrow key or WASD when a beat reaches the hit line.</p>
           <div class="timing-feedback" id="timingFeedback">Hit the beat to hear your timing callout.</div>
+          <div class="timing-coach" id="timingCoach">
+            <div class="coach-header">
+              <span>Timing Coach</span>
+              <span id="timingHint" class="coach-hint">Nail the center for maximum points.</span>
+            </div>
+            <div class="coach-meter">
+              <span class="coach-label early">Early</span>
+              <div class="coach-bar">
+                <div class="coach-zone perfect"></div>
+                <div class="coach-zone good"></div>
+                <div class="coach-zone okay"></div>
+                <div id="coachMarker" class="coach-marker"></div>
+              </div>
+              <span class="coach-label late">Late</span>
+            </div>
+          </div>
         </section>
 
         <section class="panel">
@@ -168,6 +184,23 @@
             his legacy, music, and humanitarian work to learn more about the artist who shaped
             modern pop culture.
           </p>
+        </section>
+
+        <section class="panel">
+          <h2>Legend Learning Lab</h2>
+          <p class="hint">
+            Between songs, test your knowledge with quick questions inspired by Michael Jackson’s
+            life, music, and impact.
+          </p>
+          <div class="quiz" id="quiz">
+            <div class="quiz-question" id="quizQuestion">Press “Start Quiz” to begin.</div>
+            <div class="quiz-choices" id="quizChoices"></div>
+            <div class="quiz-feedback" id="quizFeedback">Ready to learn something new?</div>
+            <div class="quiz-actions">
+              <button id="quizStartButton" class="primary">Start Quiz</button>
+              <button id="quizNextButton" class="ghost" disabled>Next Question</button>
+            </div>
+          </div>
         </section>
       </main>
     </div>
