@@ -672,6 +672,7 @@ const animateLane = () => {
 
 const startGame = () => {
   if (isPlaying) return;
+  setActiveTab("play");
   isPlaying = true;
   isPaused = false;
   score = 0;
