@@ -12,6 +12,9 @@
   --good: #f3b73c;
   --okay: #5db7ff;
   --miss: #ff7a7a;
+  --fortnite-blue: #3b82f6;
+  --fortnite-purple: #a855f7;
+  --fortnite-dark: #0f172a;
 }
 
 * {
@@ -21,7 +24,7 @@
 body {
   margin: 0;
   background:
-    linear-gradient(120deg, rgba(10, 10, 24, 0.9), rgba(12, 12, 32, 0.95)),
+    linear-gradient(120deg, rgba(12, 16, 40, 0.92), rgba(12, 12, 32, 0.95)),
     repeating-linear-gradient(
       90deg,
       rgba(255, 255, 255, 0.04) 0,
@@ -44,6 +47,43 @@ body {
   max-width: 1180px;
   margin: 0 auto;
   padding: 32px 24px 56px;
+}
+
+.title-screen,
+.signup-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+}
+
+.title-card {
+  max-width: 520px;
+  background: rgba(12, 18, 40, 0.92);
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.title-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.title-hint {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.signup-panel {
+  max-width: 520px;
+  width: 100%;
 }
 
 .menu {
@@ -122,7 +162,7 @@ body {
   justify-content: center;
   gap: 10px;
   padding: 12px 16px;
-  background: rgba(12, 12, 28, 0.9);
+  background: rgba(15, 23, 42, 0.92);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(6px);
 }
@@ -608,7 +648,7 @@ button:hover:not(:disabled) {
 }
 
 .panel {
-  background: rgba(16, 16, 32, 0.96);
+  background: rgba(12, 18, 40, 0.96);
   border-radius: 18px;
   padding: 22px;
   border: 1px solid rgba(255, 255, 255, 0.06);

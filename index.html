@@ -7,7 +7,51 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page">
+    <div id="titleScreen" class="title-screen">
+      <div class="title-card">
+        <p class="eyebrow">Tribute Rhythm Game</p>
+        <h1>Moonwalk Mania</h1>
+        <p class="subtitle">
+          Step into the spotlight with moonwalk energy. Match the cues with tight timing, build
+          multipliers, and keep the dance floor glowing with MJ-inspired flair.
+        </p>
+        <div class="title-actions">
+          <button id="titleStartButton" class="primary">Enter the Show</button>
+          <button id="titleSkipButton" class="ghost">Skip to Game</button>
+        </div>
+        <p class="title-hint">Tip: Discover the secret admin path during the show.</p>
+      </div>
+    </div>
+
+    <div id="signupScreen" class="signup-screen hidden">
+      <div class="panel signup-panel">
+        <h2>Join the Moonwalk Crew</h2>
+        <p class="hint">Create a quick profile to save your vibe and show highlights.</p>
+        <form id="signupForm" class="signup-form">
+          <label>
+            Display name
+            <input id="signupName" type="text" required placeholder="Stage name" />
+          </label>
+          <label>
+            Favorite MJ track
+            <input id="signupTrack" type="text" required placeholder="e.g. Billie Jean" />
+          </label>
+          <label>
+            Rhythm level
+            <select id="signupLevel">
+              <option value="rookie">Rookie</option>
+              <option value="groover">Groover</option>
+              <option value="headline">Headline</option>
+            </select>
+          </label>
+          <button class="primary" type="submit">Save Profile</button>
+        </form>
+        <div id="signupSummary" class="signup-summary hidden"></div>
+        <button id="signupContinue" class="ghost hidden">Continue to Game</button>
+      </div>
+    </div>
+
+    <div class="page hidden" id="gameShell">
       <header class="hero">
         <div>
           <p class="eyebrow">Tribute Rhythm Game</p>
@@ -41,7 +85,6 @@
         <button class="menu-tab" data-tab="levels">Levels</button>
         <button class="menu-tab" data-tab="controls">Controls</button>
         <button class="menu-tab" data-tab="leaderboard">Leaderboard</button>
-        <button class="menu-tab" data-tab="signup">Sign Up</button>
         <button class="menu-tab" data-tab="admin">Admin Console</button>
       </nav>
       <p class="menu-hint">Looking for the console? Open the <strong>Admin Console</strong> tab.</p>
@@ -254,32 +297,7 @@
           <ol id="leaderboardList" class="leaderboard-list"></ol>
         </section>
 
-        <section class="panel tab-panel" data-panel="signup">
-          <h2>Join the Moonwalk Crew</h2>
-          <p class="hint">Create a quick profile to save your vibe and show highlights.</p>
-          <form id="signupForm" class="signup-form">
-            <label>
-              Display name
-              <input id="signupName" type="text" required placeholder="Stage name" />
-            </label>
-            <label>
-              Favorite MJ track
-              <input id="signupTrack" type="text" required placeholder="e.g. Billie Jean" />
-            </label>
-            <label>
-              Rhythm level
-              <select id="signupLevel">
-                <option value="rookie">Rookie</option>
-                <option value="groover">Groover</option>
-                <option value="headline">Headline</option>
-              </select>
-            </label>
-            <button class="primary" type="submit">Save Profile</button>
-          </form>
-          <div id="signupSummary" class="signup-summary hidden"></div>
-        </section>
-
-        <section class="panel tab-panel admin-section" data-panel="admin" id="adminSection">
+        <section class="panel tab-panel admin-section hidden" data-panel="admin" id="adminSection">
           <h2>Admin Console</h2>
           <p class="hint">Use commands to control the show. Type <strong>help</strong> to list commands.</p>
           <div class="admin-console">

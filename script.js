@@ -38,6 +38,14 @@ const adminUnlock = document.getElementById("adminUnlock");
 const adminReveal = document.getElementById("adminReveal");
 const adminRole = document.getElementById("adminRole");
 const adminCommandList = document.getElementById("adminCommandList");
+const adminSection = document.getElementById("adminSection");
+const titleScreen = document.getElementById("titleScreen");
+const signupScreen = document.getElementById("signupScreen");
+const gameShell = document.getElementById("gameShell");
+const titleStartButton = document.getElementById("titleStartButton");
+const titleSkipButton = document.getElementById("titleSkipButton");
+const signupContinue = document.getElementById("signupContinue");
+const controlDock = document.querySelector(".control-dock");
 const leaderboardList = document.getElementById("leaderboardList");
 const signupForm = document.getElementById("signupForm");
 const signupName = document.getElementById("signupName");
@@ -107,6 +115,20 @@ const THEME_PRESETS = {
   midnight: { accent: "#f59e0b", accent2: "#22d3ee", lane: "#0f172a" },
   royal: { accent: "#f472b6", accent2: "#facc15", lane: "#1f1b2f" },
 };
+
+const ADMIN_SEQUENCE = [
+  "arrowup",
+  "arrowup",
+  "arrowdown",
+  "arrowdown",
+  "arrowleft",
+  "arrowright",
+  "arrowleft",
+  "arrowright",
+  "b",
+  "a",
+];
+let adminSequenceIndex = 0;
 const ADMIN_ROLES = {
   viewer: {
     label: "Viewer",
@@ -321,6 +343,20 @@ const renderCommandList = () => {
       option.value = command;
       adminCommandList.appendChild(option);
     });
+};
+
+const setScreen = (screen) => {
+  if (titleScreen) titleScreen.classList.toggle("hidden", screen !== "title");
+  if (signupScreen) signupScreen.classList.toggle("hidden", screen !== "signup");
+  if (gameShell) gameShell.classList.toggle("hidden", screen !== "game");
+  if (controlDock) controlDock.classList.toggle("hidden", screen !== "game");
+};
+
+const revealAdminSection = () => {
+  if (adminSection) {
+    adminSection.classList.remove("hidden");
+  }
+  setActiveTab("admin");
 };
 
 const toggleAdminPanel = () => {
@@ -1168,10 +1204,10 @@ const handleAdminUnlock = () => {
 };
 
 const keyMap = {
-  ArrowLeft: "left",
-  ArrowUp: "up",
-  ArrowDown: "down",
-  ArrowRight: "right",
+  arrowleft: "left",
+  arrowup: "up",
+  arrowdown: "down",
+  arrowright: "right",
   a: "left",
   w: "up",
   s: "down",
@@ -1179,12 +1215,22 @@ const keyMap = {
 };
 
 document.addEventListener("keydown", (event) => {
-  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "a") {
-    setActiveTab("admin");
-    event.preventDefault();
-    return;
+  const tagName = event.target.tagName;
+  const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(tagName);
+  const key = event.key.length === 1 ? event.key.toLowerCase() : event.key.toLowerCase();
+
+  if (!isTyping) {
+    if (key === ADMIN_SEQUENCE[adminSequenceIndex]) {
+      adminSequenceIndex += 1;
+      if (adminSequenceIndex >= ADMIN_SEQUENCE.length) {
+        adminSequenceIndex = 0;
+        revealAdminSection();
+      }
+    } else {
+      adminSequenceIndex = 0;
+    }
   }
-  const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+
   const move = keyMap[key];
   if (move) {
     handleMove(move);
@@ -1291,7 +1337,22 @@ if (signupForm) {
       signupSummary.classList.remove("hidden");
       signupSummary.textContent = `Saved! ${profile.name} · ${profile.track} · ${profile.level.toUpperCase()}`;
     }
+    if (signupContinue) {
+      signupContinue.classList.remove("hidden");
+    }
   });
+}
+
+if (titleStartButton) {
+  titleStartButton.addEventListener("click", () => setScreen("signup"));
+}
+
+if (titleSkipButton) {
+  titleSkipButton.addEventListener("click", () => setScreen("game"));
+}
+
+if (signupContinue) {
+  signupContinue.addEventListener("click", () => setScreen("game"));
 }
 
 updateStats();
@@ -1304,3 +1365,4 @@ setAdminUnlocked(false);
 setAdminRole("viewer");
 renderLeaderboard();
 renderAdminUsers();
+setScreen("title");
