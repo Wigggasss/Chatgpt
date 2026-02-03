@@ -34,14 +34,17 @@
         </div>
         <div class="stage">
           <div class="spotlight"></div>
-          <div class="dancer" aria-hidden="true">
-            <div class="hat"></div>
-            <div class="head"></div>
-            <div class="body"></div>
-            <div class="arm left"></div>
-            <div class="arm right"></div>
-            <div class="leg left"></div>
-            <div class="leg right"></div>
+          <div class="dancer-3d" aria-hidden="true">
+            <div class="silhouette">
+              <div class="hat"></div>
+              <div class="head"></div>
+              <div class="torso"></div>
+              <div class="arm left"></div>
+              <div class="arm right"></div>
+              <div class="leg left"></div>
+              <div class="leg right"></div>
+            </div>
+            <div class="shadow"></div>
           </div>
           <p class="stage-caption">Moonwalk tribute show inspired by Michael Jackson's legendary stage presence.</p>
         </div>
@@ -60,12 +63,20 @@
               <span id="streak" class="value">0</span>
             </div>
             <div>
+              <span class="label">Level</span>
+              <span id="level" class="value">1</span>
+            </div>
+            <div>
               <span class="label">Multiplier</span>
               <span id="multiplier" class="value">1.0x</span>
             </div>
             <div>
               <span class="label">Accuracy</span>
               <span id="accuracy" class="value">100%</span>
+            </div>
+            <div>
+              <span class="label">Tempo</span>
+              <span id="tempo" class="value">92 BPM</span>
             </div>
             <div>
               <span class="label">High Score</span>
@@ -122,6 +133,16 @@
             <h3>Next Up</h3>
             <div id="queueList" class="queue-list"></div>
           </div>
+        </section>
+
+        <section class="panel">
+          <h2>Show Levels</h2>
+          <div class="levels" id="levels">
+            <button class="level-button active" data-level="1">Club Intro</button>
+            <button class="level-button" data-level="2">Tour Vibes</button>
+            <button class="level-button" data-level="3">Stadium Finale</button>
+          </div>
+          <p class="hint">Higher levels speed up the beat and reward bigger scores.</p>
         </section>
 
         <section class="panel">

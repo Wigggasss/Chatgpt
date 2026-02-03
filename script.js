@@ -15,6 +15,10 @@ const moveCards = Array.from(document.querySelectorAll(".move-card"));
 const queueList = document.getElementById("queueList");
 const lane = document.getElementById("lane");
 const timingFeedback = document.getElementById("timingFeedback");
+const levelEl = document.getElementById("level");
+const tempoEl = document.getElementById("tempo");
+const levelsEl = document.getElementById("levels");
+const dancer = document.querySelector(".dancer-3d");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -40,6 +44,12 @@ const gameConfig = {
   comboStep: 8,
 };
 
+const levelConfig = {
+  1: { label: "Club Intro", beatInterval: 720, travelTime: 2400, scoreBoost: 1, tempo: 92 },
+  2: { label: "Tour Vibes", beatInterval: 610, travelTime: 2200, scoreBoost: 1.2, tempo: 104 },
+  3: { label: "Stadium Finale", beatInterval: 520, travelTime: 2000, scoreBoost: 1.4, tempo: 120 },
+};
+
 let currentMove = null;
 let isPlaying = false;
 let isPaused = false;
@@ -51,6 +61,7 @@ let animationId = null;
 let beatId = 0;
 let beats = [];
 let accuracy = { hits: 0, total: 0 };
+let currentLevel = 1;
 
 let audioContext = null;
 
@@ -87,6 +98,8 @@ const updateStats = () => {
   multiplierEl.textContent = `${getMultiplier().toFixed(1)}x`;
   accuracyEl.textContent = `${getAccuracy()}%`;
   timeEl.textContent = timeLeft;
+  levelEl.textContent = currentLevel;
+  tempoEl.textContent = `${levelConfig[currentLevel].tempo} BPM`;
   progressBar.style.width = `${(timeLeft / gameConfig.duration) * 100}%`;
 };
 
@@ -292,11 +305,13 @@ const registerHit = (move, timing) => {
     frequency = 520;
   }
 
-  score += Math.round(base * multiplier);
+  const pointsAwarded = Math.round(base * multiplier * levelConfig[currentLevel].scoreBoost);
+  score += pointsAwarded;
   setFeedback(move, "hit");
-  setMessage(`${message} +${Math.round(base * multiplier)} points`, "hit");
+  setMessage(`${message} +${pointsAwarded} points`, "hit");
   setTimingFeedback(message, timingTone);
   playHitSound(frequency);
+  updateDancerMove(move, timingTone);
 };
 
 const registerMiss = (move) => {
@@ -306,6 +321,7 @@ const registerMiss = (move) => {
   setMessage("Missed the beat. Regain your rhythm!", "miss");
   setTimingFeedback("Miss", "miss");
   playHitSound(240);
+  updateDancerMove(move, "miss");
 };
 
 const handleMove = (move) => {
@@ -370,6 +386,33 @@ const playHitSound = (frequency) => {
   oscillator.stop(audioContext.currentTime + 0.12);
 };
 
+const updateDancerMove = (move, timingTone) => {
+  if (!dancer) return;
+  dancer.classList.remove("moonwalk", "spin", "pose");
+  if (timingTone === "perfect") {
+    dancer.classList.add("spin");
+  } else if (move === "left" || move === "right") {
+    dancer.classList.add("moonwalk");
+  } else {
+    dancer.classList.add("pose");
+  }
+};
+
+const applyLevel = (level) => {
+  const config = levelConfig[level];
+  if (!config) return;
+  currentLevel = level;
+  gameConfig.beatInterval = config.beatInterval;
+  gameConfig.travelTime = config.travelTime;
+  updateStats();
+  if (levelsEl) {
+    levelsEl.querySelectorAll(".level-button").forEach((button) => {
+      button.classList.toggle("active", Number(button.dataset.level) === level);
+    });
+  }
+  setMessage(`Level ${level}: ${config.label}`, "level");
+};
+
 const keyMap = {
   ArrowLeft: "left",
   ArrowUp: "up",
@@ -401,5 +444,14 @@ startButton.addEventListener("click", () => {
 pauseButton.addEventListener("click", pauseGame);
 resetButton.addEventListener("click", resetGame);
 
+if (levelsEl) {
+  levelsEl.addEventListener("click", (event) => {
+    const button = event.target.closest(".level-button");
+    if (!button) return;
+    applyLevel(Number(button.dataset.level));
+  });
+}
+
 updateStats();
 updateQueue();
+applyLevel(currentLevel);
