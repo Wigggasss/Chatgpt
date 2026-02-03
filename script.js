@@ -44,6 +44,7 @@ const signupTrack = document.getElementById("signupTrack");
 const signupLevel = document.getElementById("signupLevel");
 const signupSummary = document.getElementById("signupSummary");
 const adminUsers = document.getElementById("adminUsers");
+const controlDockButtons = Array.from(document.querySelectorAll(".control-dock__button"));
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -774,9 +775,10 @@ const playHitSound = (frequency) => {
 
 const updateDancerMove = (move, timingTone) => {
   if (!dancer) return;
-  dancer.classList.remove("moonwalk", "spin", "pose");
+  dancer.classList.remove("moonwalk", "spin", "pose", "pose-one", "pose-two", "pose-three");
   if (timingTone === "perfect") {
-    dancer.classList.add("spin");
+    const poses = ["pose-one", "pose-two", "pose-three"];
+    dancer.classList.add(poses[Math.floor(Math.random() * poses.length)]);
   } else if (move === "left" || move === "right") {
     dancer.classList.add("moonwalk");
   } else {
@@ -1215,6 +1217,21 @@ if (adminCode) {
 
 if (adminReveal) {
   adminReveal.addEventListener("click", toggleAdminPanel);
+}
+
+if (controlDockButtons.length) {
+  controlDockButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = button.dataset.action;
+      if (action === "start") {
+        startGame();
+      } else if (action === "pause") {
+        pauseGame();
+      } else if (action === "reset") {
+        resetGame();
+      }
+    });
+  });
 }
 
 if (signupForm) {
