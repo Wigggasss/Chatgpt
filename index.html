@@ -239,10 +239,20 @@
           <h2>Admin Console</h2>
           <p class="hint">Use commands to control the show. Type <strong>help</strong> to list commands.</p>
           <div class="admin-console">
-            <div id="adminLog" class="admin-log" aria-live="polite"></div>
-            <div class="admin-input">
-              <input id="adminCommand" type="text" placeholder="Enter command (e.g. level 2)" autocomplete="off" />
-              <button id="adminRun" class="primary">Run</button>
+            <div id="adminLock" class="admin-lock">
+              <p>Enter the access code to unlock admin controls.</p>
+              <div class="admin-input">
+                <input id="adminCode" type="password" placeholder="Access code" autocomplete="off" />
+                <button id="adminUnlock" class="primary">Unlock</button>
+              </div>
+              <p class="hint">Hint: ask the host for the show code.</p>
+            </div>
+            <div id="adminPanel" class="admin-panel hidden">
+              <div id="adminLog" class="admin-log" aria-live="polite"></div>
+              <div class="admin-input">
+                <input id="adminCommand" type="text" placeholder="Enter command (e.g. level 2)" autocomplete="off" />
+                <button id="adminRun" class="primary">Run</button>
+              </div>
             </div>
           </div>
         </section>

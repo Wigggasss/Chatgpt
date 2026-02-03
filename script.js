@@ -31,6 +31,10 @@ const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
 const adminLog = document.getElementById("adminLog");
 const adminCommand = document.getElementById("adminCommand");
 const adminRun = document.getElementById("adminRun");
+const adminLock = document.getElementById("adminLock");
+const adminPanel = document.getElementById("adminPanel");
+const adminCode = document.getElementById("adminCode");
+const adminUnlock = document.getElementById("adminUnlock");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -78,8 +82,11 @@ let quizIndex = 0;
 let quizActive = false;
 let quizAnswered = false;
 let showAdmin = false;
+let adminUnlocked = false;
 
 let audioContext = null;
+
+const ADMIN_ACCESS_CODE = "moonwalk";
 
 const storedHigh = Number(localStorage.getItem("moonwalk-high")) || 0;
 highScoreEl.textContent = storedHigh;
@@ -164,6 +171,19 @@ const appendAdminLog = (text, tone = "info") => {
   line.textContent = text;
   adminLog.appendChild(line);
   adminLog.scrollTop = adminLog.scrollHeight;
+};
+
+const setAdminUnlocked = (unlocked) => {
+  adminUnlocked = unlocked;
+  if (adminLock) {
+    adminLock.classList.toggle("hidden", unlocked);
+  }
+  if (adminPanel) {
+    adminPanel.classList.toggle("hidden", !unlocked);
+  }
+  if (unlocked) {
+    appendAdminLog("Admin access granted. Type help to see commands.");
+  }
 };
 
 const highlightMove = (move) => {
@@ -575,6 +595,11 @@ const updateTempo = (value) => {
 
 const handleAdminCommand = () => {
   if (!adminCommand) return;
+  if (!adminUnlocked) {
+    appendAdminLog("Admin console locked. Enter the access code first.", "error");
+    adminCommand.value = "";
+    return;
+  }
   const raw = adminCommand.value.trim();
   if (!raw) return;
   const [command, ...args] = raw.toLowerCase().split(" ");
@@ -652,6 +677,22 @@ const handleAdminCommand = () => {
   adminCommand.value = "";
 };
 
+const handleAdminUnlock = () => {
+  if (!adminCode) return;
+  const code = adminCode.value.trim().toLowerCase();
+  if (code === ADMIN_ACCESS_CODE) {
+    setAdminUnlocked(true);
+  } else {
+    if (adminLock) {
+      const hint = adminLock.querySelector(".hint");
+      if (hint) {
+        hint.textContent = "Incorrect code. Try again.";
+      }
+    }
+  }
+  adminCode.value = "";
+};
+
 const keyMap = {
   ArrowLeft: "left",
   ArrowUp: "up",
@@ -717,10 +758,22 @@ if (adminCommand) {
   });
 }
 
+if (adminUnlock) {
+  adminUnlock.addEventListener("click", handleAdminUnlock);
+}
+
+if (adminCode) {
+  adminCode.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      handleAdminUnlock();
+    }
+  });
+}
+
 updateStats();
 updateQueue();
 applyLevel(currentLevel);
 resetTimingCoach();
 setActiveTab("play");
 showAdmin = true;
-appendAdminLog("Admin console ready. Type help to list commands.");
+setAdminUnlocked(false);

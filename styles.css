@@ -20,7 +20,23 @@
 
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #22223c, var(--bg));
+  background:
+    linear-gradient(120deg, rgba(10, 10, 24, 0.9), rgba(12, 12, 32, 0.95)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 0,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px,
+      transparent 80px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.03) 0,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 80px
+    ),
+    radial-gradient(circle at top, #2a2a4a, var(--bg));
   color: var(--text);
 }
 
@@ -36,8 +52,8 @@ body {
   gap: 10px;
   margin: 24px 0;
   padding: 12px;
-  border-radius: 18px;
-  background: rgba(20, 20, 40, 0.8);
+  border-radius: 16px;
+  background: rgba(18, 18, 36, 0.9);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
@@ -48,11 +64,11 @@ body {
 }
 
 .menu-tab {
-  background: transparent;
-  border: 1px solid transparent;
+  background: rgba(15, 15, 32, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--muted);
   padding: 10px 16px;
-  border-radius: 999px;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
@@ -61,8 +77,8 @@ body {
 .menu-tab.active {
   color: var(--text);
   border-color: rgba(243, 183, 60, 0.6);
-  background: rgba(243, 183, 60, 0.12);
-  box-shadow: 0 0 16px rgba(243, 183, 60, 0.25);
+  background: rgba(243, 183, 60, 0.18);
+  box-shadow: 0 0 18px rgba(243, 183, 60, 0.35);
 }
 
 .menu-tab:hover:not(.active) {
@@ -84,6 +100,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
+}
+
+.hidden {
+  display: none;
 }
 
 .timing-feedback {
@@ -210,8 +230,8 @@ body {
   align-items: center;
   background: linear-gradient(120deg, #121226, #1e1e39 60%, #151525);
   padding: 28px;
-  border-radius: 24px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
 }
 
 .eyebrow {
@@ -242,7 +262,7 @@ h1 {
 button {
   border: none;
   padding: 12px 22px;
-  border-radius: 999px;
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -460,8 +480,8 @@ button:hover:not(:disabled) {
 }
 
 .panel {
-  background: rgba(20, 20, 40, 0.95);
-  border-radius: 20px;
+  background: rgba(16, 16, 32, 0.96);
+  border-radius: 18px;
   padding: 22px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 12px 24px rgba(5, 5, 20, 0.28);
@@ -787,6 +807,19 @@ button:hover:not(:disabled) {
 
 .admin-console {
   margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-lock {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px dashed rgba(243, 183, 60, 0.4);
+  background: rgba(243, 183, 60, 0.08);
+  color: var(--muted);
+}
+
+.admin-panel {
   display: grid;
   gap: 12px;
 }
