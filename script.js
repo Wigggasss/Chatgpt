@@ -1,12 +1,19 @@
 const startButton = document.getElementById("startButton");
+const pauseButton = document.getElementById("pauseButton");
 const resetButton = document.getElementById("resetButton");
+const soundToggle = document.getElementById("soundToggle");
+const autoAdvanceToggle = document.getElementById("autoAdvanceToggle");
 const scoreEl = document.getElementById("score");
 const streakEl = document.getElementById("streak");
+const multiplierEl = document.getElementById("multiplier");
+const accuracyEl = document.getElementById("accuracy");
 const highScoreEl = document.getElementById("highScore");
 const timeEl = document.getElementById("time");
 const progressBar = document.getElementById("progressBar");
 const messageEl = document.getElementById("message");
 const moveCards = Array.from(document.querySelectorAll(".move-card"));
+const queueList = document.getElementById("queueList");
+const lane = document.getElementById("lane");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -15,14 +22,36 @@ const moveLabels = {
   down: "Spin Drop",
   right: "Slide Right",
 };
+const moveSymbols = {
+  left: "◀︎",
+  up: "▲",
+  down: "▼",
+  right: "▶︎",
+};
+
+const gameConfig = {
+  duration: 75,
+  beatInterval: 650,
+  travelTime: 2200,
+  perfectWindow: 90,
+  goodWindow: 150,
+  okayWindow: 220,
+  comboStep: 8,
+};
 
 let currentMove = null;
 let isPlaying = false;
+let isPaused = false;
 let score = 0;
 let streak = 0;
-let timeLeft = 60;
+let timeLeft = gameConfig.duration;
 let timerId = null;
-let cueId = null;
+let animationId = null;
+let beatId = 0;
+let beats = [];
+let accuracy = { hits: 0, total: 0 };
+
+let audioContext = null;
 
 const storedHigh = Number(localStorage.getItem("moonwalk-high")) || 0;
 highScoreEl.textContent = storedHigh;
@@ -48,8 +77,17 @@ const setFeedback = (move, status) => {
 const updateStats = () => {
   scoreEl.textContent = score;
   streakEl.textContent = streak;
+  multiplierEl.textContent = `${getMultiplier().toFixed(1)}x`;
+  accuracyEl.textContent = `${getAccuracy()}%`;
   timeEl.textContent = timeLeft;
-  progressBar.style.width = `${(timeLeft / 60) * 100}%`;
+  progressBar.style.width = `${(timeLeft / gameConfig.duration) * 100}%`;
+};
+
+const getMultiplier = () => 1 + Math.floor(streak / gameConfig.comboStep) * 0.2;
+
+const getAccuracy = () => {
+  if (accuracy.total === 0) return 100;
+  return Math.max(0, Math.round((accuracy.hits / accuracy.total) * 100));
 };
 
 const updateHighScore = () => {
@@ -60,15 +98,51 @@ const updateHighScore = () => {
   }
 };
 
-const pickMove = () => {
-  const nextMove = moves[Math.floor(Math.random() * moves.length)];
-  currentMove = nextMove;
-  highlightMove(nextMove);
-  setMessage(`Cue: ${moveLabels[nextMove]}!`, "cue");
+const resetLane = () => {
+  beats.forEach((beat) => beat.element.remove());
+  beats = [];
+};
+
+const pickMove = () => moves[Math.floor(Math.random() * moves.length)];
+
+const enqueueBeat = (now) => {
+  const move = pickMove();
+  const targetTime = now + gameConfig.travelTime;
+  const beatElement = document.createElement("div");
+  beatElement.className = `beat ${move}`;
+  beatElement.textContent = moveSymbols[move];
+  lane.appendChild(beatElement);
+
+  beats.push({
+    id: beatId += 1,
+    move,
+    targetTime,
+    element: beatElement,
+  });
+
+  if (autoAdvanceToggle.checked) {
+    currentMove = move;
+    highlightMove(move);
+  }
+};
+
+const updateQueue = () => {
+  const upcoming = beats.slice(0, 4);
+  queueList.innerHTML = "";
+  upcoming.forEach((beat) => {
+    const item = document.createElement("div");
+    item.className = "queue-item";
+    item.innerHTML = `<strong>${moveSymbols[beat.move]}</strong>${moveLabels[beat.move]}`;
+    queueList.appendChild(item);
+  });
+  if (!upcoming.length) {
+    queueList.innerHTML = `<div class="queue-item">Waiting...</div>`;
+  }
 };
 
 const startTimer = () => {
   timerId = setInterval(() => {
+    if (isPaused) return;
     timeLeft -= 1;
     updateStats();
     if (timeLeft <= 0) {
@@ -77,59 +151,187 @@ const startTimer = () => {
   }, 1000);
 };
 
-const startCueLoop = () => {
-  pickMove();
-  cueId = setInterval(pickMove, 1800);
+const startBeatLoop = () => {
+  let lastBeat = performance.now();
+  const spawn = () => {
+    if (!isPlaying || isPaused) {
+      animationId = requestAnimationFrame(spawn);
+      return;
+    }
+    const now = performance.now();
+    if (now - lastBeat >= gameConfig.beatInterval) {
+      enqueueBeat(now);
+      lastBeat = now;
+      playMetronome();
+    }
+    animationId = requestAnimationFrame(spawn);
+  };
+  spawn();
+};
+
+const updateBeatPositions = (now) => {
+  const laneRect = lane.getBoundingClientRect();
+  const startX = laneRect.width + 40;
+  const targetX = laneRect.width * 0.22;
+
+  beats = beats.filter((beat) => {
+    const timeUntil = beat.targetTime - now;
+    const progress = 1 - timeUntil / gameConfig.travelTime;
+    const x = startX - (startX - targetX) * progress;
+    beat.element.style.left = `${x}px`;
+
+    if (timeUntil < -gameConfig.okayWindow) {
+      registerMiss(beat.move);
+      beat.element.remove();
+      return false;
+    }
+    return true;
+  });
+};
+
+const animateLane = () => {
+  const loop = () => {
+    if (!isPlaying) return;
+    if (!isPaused) {
+      updateBeatPositions(performance.now());
+      updateQueue();
+    }
+    animationId = requestAnimationFrame(loop);
+  };
+  loop();
 };
 
 const startGame = () => {
   if (isPlaying) return;
   isPlaying = true;
+  isPaused = false;
   score = 0;
   streak = 0;
-  timeLeft = 60;
+  accuracy = { hits: 0, total: 0 };
+  timeLeft = gameConfig.duration;
+  resetLane();
   updateStats();
-  setMessage("Showtime! Follow the rhythm.", "start");
+  setMessage("Showtime! Hit the beats on the line.", "start");
   startTimer();
-  startCueLoop();
+  startBeatLoop();
+  animateLane();
+  pauseButton.disabled = false;
+  startButton.disabled = true;
+};
+
+const pauseGame = () => {
+  if (!isPlaying) return;
+  isPaused = !isPaused;
+  pauseButton.textContent = isPaused ? "Resume" : "Pause";
+  setMessage(isPaused ? "Paused. Catch your breath." : "Back on the beat!", "pause");
 };
 
 const endGame = () => {
   isPlaying = false;
+  isPaused = false;
   clearInterval(timerId);
-  clearInterval(cueId);
-  highlightMove(null);
+  cancelAnimationFrame(animationId);
   updateHighScore();
   setMessage(`Final bow! You scored ${score} points.`, "end");
+  pauseButton.disabled = true;
+  pauseButton.textContent = "Pause";
+  startButton.disabled = false;
 };
 
 const resetGame = () => {
   clearInterval(timerId);
-  clearInterval(cueId);
+  cancelAnimationFrame(animationId);
   isPlaying = false;
+  isPaused = false;
   score = 0;
   streak = 0;
-  timeLeft = 60;
+  timeLeft = gameConfig.duration;
+  accuracy = { hits: 0, total: 0 };
   currentMove = null;
   highlightMove(null);
+  resetLane();
   updateStats();
   setMessage("Hit start to begin the show.");
+  pauseButton.disabled = true;
+  pauseButton.textContent = "Pause";
+  startButton.disabled = false;
+};
+
+const registerHit = (move, timing) => {
+  accuracy.hits += 1;
+  accuracy.total += 1;
+  streak += 1;
+  const multiplier = getMultiplier();
+  let base = 120;
+  let message = "Okay";
+
+  if (timing <= gameConfig.perfectWindow) {
+    base = 220;
+    message = "Perfect!";
+  } else if (timing <= gameConfig.goodWindow) {
+    base = 170;
+    message = "Great!";
+  } else {
+    base = 130;
+    message = "Nice!";
+  }
+
+  score += Math.round(base * multiplier);
+  setFeedback(move, "hit");
+  setMessage(`${message} +${Math.round(base * multiplier)} points`, "hit");
+};
+
+const registerMiss = (move) => {
+  accuracy.total += 1;
+  streak = 0;
+  setFeedback(move, "miss");
+  setMessage("Missed the beat. Regain your rhythm!", "miss");
 };
 
 const handleMove = (move) => {
-  if (!isPlaying || !currentMove) return;
-  if (move === currentMove) {
-    score += 150 + streak * 10;
-    streak += 1;
-    setFeedback(move, "hit");
-    setMessage("Perfect timing!", "hit");
-    pickMove();
-  } else {
-    streak = 0;
-    setFeedback(move, "miss");
-    setMessage("Missed the beat. Regain your rhythm!", "miss");
+  if (!isPlaying || isPaused) return;
+  const now = performance.now();
+  const candidates = beats
+    .filter((beat) => beat.move === move)
+    .map((beat) => ({
+      beat,
+      diff: Math.abs(beat.targetTime - now),
+    }))
+    .sort((a, b) => a.diff - b.diff);
+
+  if (!candidates.length) {
+    registerMiss(move);
+    updateStats();
+    return;
   }
+
+  const { beat, diff } = candidates[0];
+  if (diff <= gameConfig.okayWindow) {
+    registerHit(move, diff);
+    beat.element.classList.add("hit");
+    beat.element.remove();
+    beats = beats.filter((item) => item.id !== beat.id);
+  } else {
+    registerMiss(move);
+  }
+
   updateStats();
+};
+
+const playMetronome = () => {
+  if (!soundToggle.checked) return;
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = "triangle";
+  oscillator.frequency.value = 740;
+  gain.gain.value = 0.06;
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.08);
 };
 
 const keyMap = {
@@ -148,9 +350,20 @@ document.addEventListener("keydown", (event) => {
   if (move) {
     handleMove(move);
   }
+  if (event.key === " ") {
+    pauseGame();
+  }
 });
 
-startButton.addEventListener("click", startGame);
+startButton.addEventListener("click", () => {
+  if (audioContext && audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+  startGame();
+});
+
+pauseButton.addEventListener("click", pauseGame);
 resetButton.addEventListener("click", resetGame);
 
 updateStats();
+updateQueue();

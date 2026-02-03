@@ -7,6 +7,11 @@
   --accent-2: #ff5da2;
   --text: #f5f7ff;
   --muted: #b2b5d6;
+  --lane: #191933;
+  --perfect: #59d67a;
+  --good: #f3b73c;
+  --okay: #5db7ff;
+  --miss: #ff7a7a;
 }
 
 * {
@@ -20,9 +25,9 @@ body {
 }
 
 .page {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 32px 24px 48px;
+  padding: 32px 24px 56px;
 }
 
 .hero {
@@ -70,6 +75,11 @@ button {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -87,8 +97,27 @@ button.ghost {
   color: var(--text);
 }
 
-button:hover {
+button:hover:not(:disabled) {
   transform: translateY(-2px);
+}
+
+.toggles {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.toggle input {
+  accent-color: var(--accent);
 }
 
 .stage {
@@ -190,7 +219,7 @@ button:hover {
   margin-top: 32px;
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .panel {
@@ -206,7 +235,7 @@ button:hover {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -217,7 +246,7 @@ button:hover {
 }
 
 .value {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 700;
 }
 
@@ -242,6 +271,110 @@ button:hover {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.05);
   color: var(--muted);
+  min-height: 48px;
+}
+
+.lane {
+  position: relative;
+  height: 140px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 60%),
+    var(--lane);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.target {
+  position: absolute;
+  left: 22%;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 18px rgba(243, 183, 60, 0.55);
+}
+
+.target-label {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.beat {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0b0b15;
+  background: var(--accent);
+  box-shadow: 0 0 14px rgba(243, 183, 60, 0.5);
+}
+
+.beat.left {
+  background: #f3b73c;
+}
+
+.beat.up {
+  background: #59d67a;
+}
+
+.beat.down {
+  background: #5db7ff;
+}
+
+.beat.right {
+  background: #ff5da2;
+}
+
+.beat.hit {
+  animation: pop 0.2s ease-out;
+}
+
+@keyframes pop {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.2;
+  }
+}
+
+.lane-legend {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.dot.perfect {
+  background: var(--perfect);
+}
+
+.dot.good {
+  background: var(--good);
+}
+
+.dot.okay {
+  background: var(--okay);
 }
 
 .move-grid {
@@ -272,13 +405,42 @@ button:hover {
 }
 
 .move-card.hit {
-  border-color: #59d67a;
+  border-color: var(--perfect);
   box-shadow: 0 0 18px rgba(89, 214, 122, 0.35);
 }
 
 .move-card.miss {
-  border-color: #ff7a7a;
+  border-color: var(--miss);
   box-shadow: 0 0 18px rgba(255, 122, 122, 0.35);
+}
+
+.queue {
+  margin-top: 16px;
+}
+
+.queue h3 {
+  margin: 0 0 10px;
+}
+
+.queue-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.queue-item {
+  padding: 10px 8px;
+  border-radius: 12px;
+  background: #1b1b2f;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.queue-item strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--text);
 }
 
 .hint {
@@ -294,7 +456,7 @@ ul {
   line-height: 1.6;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 720px) {
   .hero {
     text-align: center;
   }
@@ -304,6 +466,10 @@ ul {
   }
 
   .stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .queue-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

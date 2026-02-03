@@ -13,12 +13,23 @@
           <p class="eyebrow">Tribute Rhythm Game</p>
           <h1>Moonwalk Mania</h1>
           <p class="subtitle">
-            Step into the spotlight and follow the signature moves. Match the cues, build your streak,
-            and keep the dance floor glowing.
+            Step into the spotlight and follow the signature moves. Match the cues with tight timing,
+            build multipliers, and keep the dance floor glowing.
           </p>
           <div class="actions">
             <button id="startButton" class="primary">Start Show</button>
+            <button id="pauseButton" class="ghost" disabled>Pause</button>
             <button id="resetButton" class="ghost">Reset</button>
+          </div>
+          <div class="toggles">
+            <label class="toggle">
+              <input type="checkbox" id="soundToggle" checked />
+              <span>Metronome</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="autoAdvanceToggle" checked />
+              <span>Auto-advance cues</span>
+            </label>
           </div>
         </div>
         <div class="stage">
@@ -49,12 +60,20 @@
               <span id="streak" class="value">0</span>
             </div>
             <div>
+              <span class="label">Multiplier</span>
+              <span id="multiplier" class="value">1.0x</span>
+            </div>
+            <div>
+              <span class="label">Accuracy</span>
+              <span id="accuracy" class="value">100%</span>
+            </div>
+            <div>
               <span class="label">High Score</span>
               <span id="highScore" class="value">0</span>
             </div>
             <div>
               <span class="label">Time</span>
-              <span id="time" class="value">60</span>
+              <span id="time" class="value">75</span>
             </div>
           </div>
           <div class="progress">
@@ -64,7 +83,22 @@
         </section>
 
         <section class="panel">
-          <h2>Move Queue</h2>
+          <h2>Beat Lane</h2>
+          <div class="lane" id="lane">
+            <div class="target">
+              <span class="target-label">Hit Line</span>
+            </div>
+          </div>
+          <div class="lane-legend">
+            <div><span class="dot perfect"></span>Perfect</div>
+            <div><span class="dot good"></span>Good</div>
+            <div><span class="dot okay"></span>Okay</div>
+          </div>
+          <p class="hint">Press the arrow key or WASD when a beat reaches the hit line.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Move Deck</h2>
           <div class="move-grid" id="moveGrid">
             <div class="move-card" data-move="left">
               <span>◀︎</span>
@@ -83,16 +117,19 @@
               <p>Slide Right</p>
             </div>
           </div>
-          <p class="hint">Use arrow keys or WASD to match the highlighted move.</p>
+          <div class="queue">
+            <h3>Next Up</h3>
+            <div id="queueList" class="queue-list"></div>
+          </div>
         </section>
 
         <section class="panel">
           <h2>Show Rules</h2>
           <ul>
-            <li>Follow the cue before the beat line reaches the edge.</li>
-            <li>Each correct move boosts your score and streak.</li>
-            <li>Missed beats reset your streak but keep the show going.</li>
-            <li>Finish the 60-second set to lock in your high score.</li>
+            <li>Hit the beat inside the timing window to score.</li>
+            <li>Perfect hits raise your multiplier faster.</li>
+            <li>Missed beats reset your streak but the show continues.</li>
+            <li>Finish the 75-second set to lock in your high score.</li>
           </ul>
         </section>
       </main>
