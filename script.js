@@ -14,7 +14,7 @@ const messageEl = document.getElementById("message");
 const moveCards = Array.from(document.querySelectorAll(".move-card"));
 const queueList = document.getElementById("queueList");
 const lane = document.getElementById("lane");
-const pageBody = document.body;
+const timingFeedback = document.getElementById("timingFeedback");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -60,6 +60,12 @@ highScoreEl.textContent = storedHigh;
 const setMessage = (text, tone = "") => {
   messageEl.textContent = text;
   messageEl.dataset.tone = tone;
+};
+
+const setTimingFeedback = (text, tone) => {
+  if (!timingFeedback) return;
+  timingFeedback.textContent = text;
+  timingFeedback.className = `timing-feedback ${tone}`;
 };
 
 const highlightMove = (move) => {
@@ -253,6 +259,7 @@ const resetGame = () => {
   resetLane();
   updateStats();
   setMessage("Hit start to begin the show.");
+  setTimingFeedback("Hit the beat to hear your timing callout.", "");
   pauseButton.disabled = true;
   pauseButton.textContent = "Pause";
   startButton.disabled = false;
@@ -265,21 +272,31 @@ const registerHit = (move, timing) => {
   const multiplier = getMultiplier();
   let base = 120;
   let message = "Okay";
+  let timingTone = "okay";
+  let frequency = 420;
 
   if (timing <= gameConfig.perfectWindow) {
     base = 220;
     message = "Perfect!";
+    timingTone = "perfect";
+    frequency = 780;
   } else if (timing <= gameConfig.goodWindow) {
     base = 170;
     message = "Great!";
+    timingTone = "good";
+    frequency = 620;
   } else {
     base = 130;
     message = "Nice!";
+    timingTone = "okay";
+    frequency = 520;
   }
 
   score += Math.round(base * multiplier);
   setFeedback(move, "hit");
   setMessage(`${message} +${Math.round(base * multiplier)} points`, "hit");
+  setTimingFeedback(message, timingTone);
+  playHitSound(frequency);
 };
 
 const registerMiss = (move) => {
@@ -287,6 +304,8 @@ const registerMiss = (move) => {
   streak = 0;
   setFeedback(move, "miss");
   setMessage("Missed the beat. Regain your rhythm!", "miss");
+  setTimingFeedback("Miss", "miss");
+  playHitSound(240);
 };
 
 const handleMove = (move) => {
@@ -335,13 +354,20 @@ const playMetronome = () => {
   oscillator.stop(audioContext.currentTime + 0.08);
 };
 
-const triggerScreenEffect = () => {
-  pageBody.classList.remove("screen-shake", "screen-flash");
-  void pageBody.offsetWidth;
-  pageBody.classList.add("screen-shake", "screen-flash");
-  setTimeout(() => {
-    pageBody.classList.remove("screen-shake", "screen-flash");
-  }, 260);
+const playHitSound = (frequency) => {
+  if (!soundToggle.checked) return;
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = "sine";
+  oscillator.frequency.value = frequency;
+  gain.gain.value = 0.08;
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.12);
 };
 
 const keyMap = {
@@ -358,7 +384,6 @@ const keyMap = {
 document.addEventListener("keydown", (event) => {
   const move = keyMap[event.key];
   if (move) {
-    triggerScreenEffect();
     handleMove(move);
   }
   if (event.key === " ") {

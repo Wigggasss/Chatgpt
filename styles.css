@@ -22,7 +22,6 @@ body {
   margin: 0;
   background: radial-gradient(circle at top, #22223c, var(--bg));
   color: var(--text);
-  transition: transform 0.15s ease;
 }
 
 .page {
@@ -31,42 +30,36 @@ body {
   padding: 32px 24px 56px;
 }
 
-.screen-shake {
-  animation: screenShake 0.18s ease-out;
+.timing-feedback {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  min-height: 44px;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-.screen-flash {
-  animation: screenFlash 0.25s ease-out;
+.timing-feedback.perfect {
+  background: rgba(89, 214, 122, 0.18);
+  color: var(--perfect);
 }
 
-@keyframes screenShake {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate3d(-4px, 2px, 0) rotate(-0.4deg);
-  }
-  50% {
-    transform: translate3d(4px, -2px, 0) rotate(0.4deg);
-  }
-  75% {
-    transform: translate3d(-2px, -3px, 0) rotate(-0.2deg);
-  }
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
+.timing-feedback.good {
+  background: rgba(243, 183, 60, 0.18);
+  color: var(--good);
 }
 
-@keyframes screenFlash {
-  0% {
-    box-shadow: inset 0 0 0 rgba(255, 255, 255, 0);
-  }
-  30% {
-    box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.18);
-  }
-  100% {
-    box-shadow: inset 0 0 0 rgba(255, 255, 255, 0);
-  }
+.timing-feedback.okay {
+  background: rgba(93, 183, 255, 0.18);
+  color: var(--okay);
+}
+
+.timing-feedback.miss {
+  background: rgba(255, 122, 122, 0.18);
+  color: var(--miss);
 }
 
 .hero {
@@ -486,6 +479,16 @@ button:hover:not(:disabled) {
   color: var(--muted);
   font-size: 0.85rem;
   margin-top: 12px;
+}
+
+.bio {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.bio:last-child {
+  margin-bottom: 0;
 }
 
 ul {
