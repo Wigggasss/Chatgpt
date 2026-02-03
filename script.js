@@ -43,6 +43,7 @@ const signupName = document.getElementById("signupName");
 const signupTrack = document.getElementById("signupTrack");
 const signupLevel = document.getElementById("signupLevel");
 const signupSummary = document.getElementById("signupSummary");
+const adminUsers = document.getElementById("adminUsers");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -159,6 +160,7 @@ const ADMIN_ROLES = {
 };
 let adminRoleState = "viewer";
 const leaderboard = JSON.parse(localStorage.getItem("moonwalk-leaderboard") || "[]");
+const profiles = JSON.parse(localStorage.getItem("moonwalk-profiles") || "[]");
 
 const storedHigh = Number(localStorage.getItem("moonwalk-high")) || 0;
 highScoreEl.textContent = storedHigh;
@@ -276,6 +278,14 @@ const setAdminRole = (role) => {
 
 const canRun = (command) => ADMIN_ROLES[adminRoleState].commands.includes(command);
 
+const canRunForProfile = (command, profile) => {
+  if (!profile) return canRun(command);
+  if (profile.role && ADMIN_ROLES[profile.role]) {
+    if (ADMIN_ROLES[profile.role].commands.includes(command)) return true;
+  }
+  return (profile.customCommands || []).includes(command);
+};
+
 const toggleAdminPanel = () => {
   adminRevealed = !adminRevealed;
   if (adminPanel) {
@@ -295,6 +305,75 @@ const logStatus = () => {
 
 const logAbout = () => {
   appendAdminLog("Moonwalk Mania Admin Console: manage tempo, cues, level flow, and show pacing.");
+};
+
+const saveProfiles = () => {
+  localStorage.setItem("moonwalk-profiles", JSON.stringify(profiles));
+};
+
+const upsertProfile = (profile) => {
+  const existing = profiles.findIndex((item) => item.name.toLowerCase() === profile.name.toLowerCase());
+  if (existing >= 0) {
+    profiles[existing] = { ...profiles[existing], ...profile };
+  } else {
+    profiles.push(profile);
+  }
+  saveProfiles();
+};
+
+const renderAdminUsers = () => {
+  if (!adminUsers) return;
+  adminUsers.innerHTML = "";
+  if (!profiles.length) {
+    adminUsers.innerHTML = "<div class=\"hint\">No users yet. Ask players to sign up.</div>";
+    return;
+  }
+
+  profiles.forEach((profile) => {
+    const card = document.createElement("div");
+    card.className = "admin-user-card";
+
+    const header = document.createElement("div");
+    header.className = "admin-user-row";
+    header.innerHTML = `<strong>${profile.name}</strong><span>${profile.track || "Unknown track"}</span>`;
+    card.appendChild(header);
+
+    const actions = document.createElement("div");
+    actions.className = "admin-user-actions";
+
+    const roleSelect = document.createElement("select");
+    ["viewer", "operator", "host"].forEach((role) => {
+      const option = document.createElement("option");
+      option.value = role;
+      option.textContent = role;
+      if ((profile.role || "viewer") === role) option.selected = true;
+      roleSelect.appendChild(option);
+    });
+
+    const customInput = document.createElement("input");
+    customInput.placeholder = "Custom commands (comma-separated)";
+    customInput.value = (profile.customCommands || []).join(", ");
+
+    const saveButton = document.createElement("button");
+    saveButton.className = "ghost";
+    saveButton.textContent = "Save";
+    saveButton.addEventListener("click", () => {
+      profile.role = roleSelect.value;
+      profile.customCommands = customInput.value
+        .split(",")
+        .map((cmd) => cmd.trim().toLowerCase())
+        .filter(Boolean);
+      upsertProfile(profile);
+      appendAdminLog(`Permissions saved for ${profile.name}.`);
+      renderAdminUsers();
+    });
+
+    actions.appendChild(roleSelect);
+    actions.appendChild(customInput);
+    actions.appendChild(saveButton);
+    card.appendChild(actions);
+    adminUsers.appendChild(card);
+  });
 };
 
 const applyPreset = (index) => {
@@ -796,8 +875,9 @@ const handleAdminCommand = () => {
   const [command, ...args] = raw.toLowerCase().split(" ");
   let handled = true;
   const presetMatch = command.match(/^preset(\d{1,3})$/);
+  const activeProfile = JSON.parse(localStorage.getItem("moonwalk-profile") || "{}");
 
-  if (!canRun(command) && !["help", "status", "about"].includes(command)) {
+  if (!canRunForProfile(command, activeProfile) && !["help", "status", "about"].includes(command)) {
     appendAdminLog("Permission denied for this command.", "error");
     adminCommand.value = "";
     return;
@@ -971,6 +1051,18 @@ const handleAdminCommand = () => {
     case "profile":
       appendAdminLog(localStorage.getItem("moonwalk-profile") || "No profile saved.");
       break;
+    case "permissions": {
+      const name = args.join(" ");
+      const profile = profiles.find((item) => item.name.toLowerCase() === name.toLowerCase());
+      if (!profile) {
+        appendAdminLog("User not found.", "error");
+      } else {
+        appendAdminLog(
+          `${profile.name} · role=${profile.role || "viewer"} · custom=${(profile.customCommands || []).join(", ") || "none"}`
+        );
+      }
+      break;
+    }
     case "score": {
       const value = Number(args[0]);
       if (Number.isNaN(value)) {
@@ -1132,8 +1224,12 @@ if (signupForm) {
       name: signupName.value.trim(),
       track: signupTrack.value.trim(),
       level: signupLevel.value,
+      role: "viewer",
+      customCommands: [],
     };
     localStorage.setItem("moonwalk-profile", JSON.stringify(profile));
+    upsertProfile(profile);
+    renderAdminUsers();
     if (signupSummary) {
       signupSummary.classList.remove("hidden");
       signupSummary.textContent = `Saved! ${profile.name} · ${profile.track} · ${profile.level.toUpperCase()}`;
@@ -1150,3 +1246,4 @@ showAdmin = true;
 setAdminUnlocked(false);
 setAdminRole("viewer");
 renderLeaderboard();
+renderAdminUsers();

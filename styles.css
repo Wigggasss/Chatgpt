@@ -998,6 +998,59 @@ button:hover:not(:disabled) {
   gap: 12px;
 }
 
+.admin-users {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-users h3 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+}
+
+.admin-users-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.admin-user-card {
+  background: #1b1b2f;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.admin-user-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.admin-user-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-user-actions select,
+.admin-user-actions input {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #15152a;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.admin-user-actions button {
+  padding: 8px 12px;
+}
+
 .admin-title {
   display: flex;
   justify-content: space-between;
