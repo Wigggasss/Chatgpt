@@ -35,6 +35,8 @@ const adminLock = document.getElementById("adminLock");
 const adminPanel = document.getElementById("adminPanel");
 const adminCode = document.getElementById("adminCode");
 const adminUnlock = document.getElementById("adminUnlock");
+const adminReveal = document.getElementById("adminReveal");
+const adminRole = document.getElementById("adminRole");
 
 const moves = ["left", "up", "down", "right"];
 const moveLabels = {
@@ -83,10 +85,72 @@ let quizActive = false;
 let quizAnswered = false;
 let showAdmin = false;
 let adminUnlocked = false;
+let adminRevealed = false;
 
 let audioContext = null;
 
 const ADMIN_ACCESS_CODE = "moonwalk";
+const ADMIN_ROLES = {
+  viewer: {
+    label: "Viewer",
+    commands: ["help", "status", "about"],
+  },
+  operator: {
+    label: "Operator",
+    commands: [
+      "help",
+      "status",
+      "about",
+      "start",
+      "pause",
+      "reset",
+      "level",
+      "tempo",
+      "sound",
+      "cues",
+      "duration",
+      "addtime",
+      "window",
+      "multiplier",
+      "accuracy",
+      "theme",
+      "score",
+      "streak",
+      "hint",
+    ],
+  },
+  host: {
+    label: "Host",
+    commands: [
+      "help",
+      "status",
+      "about",
+      "start",
+      "pause",
+      "reset",
+      "level",
+      "tempo",
+      "sound",
+      "cues",
+      "duration",
+      "addtime",
+      "window",
+      "multiplier",
+      "accuracy",
+      "theme",
+      "score",
+      "streak",
+      "hint",
+      "grant",
+      "revoke",
+      "lock",
+      "unlock",
+      "save",
+      "load",
+    ],
+  },
+};
+let adminRoleState = "viewer";
 
 const storedHigh = Number(localStorage.getItem("moonwalk-high")) || 0;
 highScoreEl.textContent = storedHigh;
@@ -181,6 +245,9 @@ const setAdminUnlocked = (unlocked) => {
   if (adminPanel) {
     adminPanel.classList.toggle("hidden", !unlocked);
   }
+  if (adminReveal) {
+    adminReveal.classList.toggle("hidden", !unlocked);
+  }
   if (adminCommand) {
     adminCommand.disabled = !unlocked;
   }
@@ -190,6 +257,77 @@ const setAdminUnlocked = (unlocked) => {
   if (unlocked) {
     appendAdminLog("Admin access granted. Type help to see commands.");
   }
+};
+
+const setAdminRole = (role) => {
+  adminRoleState = ADMIN_ROLES[role] ? role : "viewer";
+  if (adminRole) {
+    adminRole.textContent = `Role: ${ADMIN_ROLES[adminRoleState].label}`;
+  }
+};
+
+const canRun = (command) => ADMIN_ROLES[adminRoleState].commands.includes(command);
+
+const toggleAdminPanel = () => {
+  adminRevealed = !adminRevealed;
+  if (adminPanel) {
+    adminPanel.classList.toggle("hidden", !adminRevealed);
+  }
+  if (adminReveal) {
+    adminReveal.textContent = adminRevealed ? "Hide Panel" : "Reveal Panel";
+  }
+};
+
+const logStatus = () => {
+  appendAdminLog(
+    `Status — Level ${currentLevel} (${levelConfig[currentLevel].label}), Tempo ${levelConfig[currentLevel].tempo} BPM, ` +
+      `Score ${score}, Streak ${streak}, Accuracy ${getAccuracy()}%, Time ${timeLeft}s.`
+  );
+};
+
+const logAbout = () => {
+  appendAdminLog("Moonwalk Mania Admin Console: manage tempo, cues, level flow, and show pacing.");
+};
+
+const saveShowState = () => {
+  const payload = {
+    level: currentLevel,
+    score,
+    streak,
+    timeLeft,
+    accuracy,
+    tempo: levelConfig[currentLevel].tempo,
+    duration: gameConfig.duration,
+    windows: {
+      perfect: gameConfig.perfectWindow,
+      good: gameConfig.goodWindow,
+      okay: gameConfig.okayWindow,
+    },
+  };
+  localStorage.setItem("moonwalk-admin-save", JSON.stringify(payload));
+  appendAdminLog("Show state saved.");
+};
+
+const loadShowState = () => {
+  const raw = localStorage.getItem("moonwalk-admin-save");
+  if (!raw) {
+    appendAdminLog("No saved state found.", "error");
+    return;
+  }
+  const payload = JSON.parse(raw);
+  applyLevel(payload.level || 1);
+  score = payload.score || 0;
+  streak = payload.streak || 0;
+  timeLeft = payload.timeLeft || gameConfig.duration;
+  accuracy = payload.accuracy || { hits: 0, total: 0 };
+  gameConfig.duration = payload.duration || gameConfig.duration;
+  if (payload.windows) {
+    gameConfig.perfectWindow = payload.windows.perfect || gameConfig.perfectWindow;
+    gameConfig.goodWindow = payload.windows.good || gameConfig.goodWindow;
+    gameConfig.okayWindow = payload.windows.okay || gameConfig.okayWindow;
+  }
+  updateStats();
+  appendAdminLog("Show state loaded.");
 };
 
 const highlightMove = (move) => {
@@ -611,19 +749,27 @@ const handleAdminCommand = () => {
   const [command, ...args] = raw.toLowerCase().split(" ");
   let handled = true;
 
+  if (!canRun(command) && !["help", "status", "about"].includes(command)) {
+    appendAdminLog("Permission denied for this command.", "error");
+    adminCommand.value = "";
+    return;
+  }
+
   switch (command) {
     case "help":
       appendAdminLog(
         [
-          "Commands:",
-          "help, start, pause, reset, level <1-3>, tempo <bpm>",
-          "score <amount>, streak <amount>, hint <text>",
-          "sound <on|off>, cues <on|off>, duration <seconds>",
-          "addtime <seconds>, window <perfect|good|okay> <ms>",
-          "multiplier <value>, accuracy <value>",
-          "theme <default|neon>",
+          `Commands for ${ADMIN_ROLES[adminRoleState].label}:`,
+          ADMIN_ROLES[adminRoleState].commands.join(", "),
+          "Common: help, status, about",
         ].join(" ")
       );
+      break;
+    case "status":
+      logStatus();
+      break;
+    case "about":
+      logAbout();
       break;
     case "start":
       startGame();
@@ -742,6 +888,33 @@ const handleAdminCommand = () => {
       }
       break;
     }
+    case "grant": {
+      const role = args[0];
+      if (!ADMIN_ROLES[role]) {
+        appendAdminLog("Grant usage: grant <viewer|operator|host>", "error");
+      } else {
+        setAdminRole(role);
+        appendAdminLog(`Role updated to ${ADMIN_ROLES[role].label}.`);
+      }
+      break;
+    }
+    case "revoke":
+      setAdminRole("viewer");
+      appendAdminLog("Role reset to Viewer.");
+      break;
+    case "lock":
+      setAdminUnlocked(false);
+      appendAdminLog("Admin console locked.");
+      break;
+    case "unlock":
+      appendAdminLog("Use the access code to unlock.", "error");
+      break;
+    case "save":
+      saveShowState();
+      break;
+    case "load":
+      loadShowState();
+      break;
     case "score": {
       const value = Number(args[0]);
       if (Number.isNaN(value)) {
@@ -789,6 +962,7 @@ const handleAdminUnlock = () => {
   const code = adminCode.value.trim().toLowerCase();
   if (code === ADMIN_ACCESS_CODE) {
     setAdminUnlocked(true);
+    setAdminRole("operator");
   } else {
     if (adminLock) {
       const hint = adminLock.querySelector(".hint");
@@ -815,9 +989,14 @@ document.addEventListener("keydown", (event) => {
   const move = keyMap[event.key];
   if (move) {
     handleMove(move);
+    event.preventDefault();
   }
   if (event.key === " ") {
     pauseGame();
+    event.preventDefault();
+  }
+  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+    event.preventDefault();
   }
 });
 
@@ -877,6 +1056,10 @@ if (adminCode) {
   });
 }
 
+if (adminReveal) {
+  adminReveal.addEventListener("click", toggleAdminPanel);
+}
+
 updateStats();
 updateQueue();
 applyLevel(currentLevel);
@@ -884,3 +1067,4 @@ resetTimingCoach();
 setActiveTab("play");
 showAdmin = true;
 setAdminUnlocked(false);
+setAdminRole("viewer");

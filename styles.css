@@ -106,6 +106,10 @@ body {
   display: none;
 }
 
+.admin-reveal {
+  align-self: start;
+}
+
 .timing-feedback {
   margin-top: 12px;
   padding: 12px 14px;
@@ -467,6 +471,18 @@ button:hover:not(:disabled) {
   }
 }
 
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
 @keyframes pose {
   0%,
   100% {
@@ -741,6 +757,115 @@ button:hover:not(:disabled) {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.stage-pro {
+  position: relative;
+  border-radius: 18px;
+  background: linear-gradient(140deg, rgba(20, 20, 40, 0.9), rgba(10, 10, 28, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px;
+  margin-bottom: 18px;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.stage-pro__lights {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.stage-pro__lights span {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff7d6, #f3b73c 70%, transparent);
+  box-shadow: 0 0 18px rgba(243, 183, 60, 0.6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.stage-pro__lights span:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.stage-pro__lights span:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.stage-pro__dancer {
+  position: relative;
+  width: 90px;
+  height: 130px;
+}
+
+.stage-pro__hat,
+.stage-pro__body,
+.stage-pro__arm,
+.stage-pro__leg {
+  position: absolute;
+  background: linear-gradient(160deg, #fff7d6, #f3b73c 70%, #d17b19);
+  border-radius: 12px;
+}
+
+.stage-pro__hat {
+  width: 70px;
+  height: 10px;
+  top: 0;
+  left: 10px;
+}
+
+.stage-pro__body {
+  width: 30px;
+  height: 70px;
+  top: 24px;
+  left: 30px;
+}
+
+.stage-pro__arm {
+  width: 12px;
+  height: 50px;
+  top: 30px;
+}
+
+.stage-pro__arm.left {
+  left: 10px;
+  transform: rotate(-20deg);
+}
+
+.stage-pro__arm.right {
+  right: 10px;
+  transform: rotate(20deg);
+}
+
+.stage-pro__leg {
+  width: 14px;
+  height: 50px;
+  top: 78px;
+}
+
+.stage-pro__leg.left {
+  left: 28px;
+  transform: rotate(6deg);
+}
+
+.stage-pro__leg.right {
+  right: 28px;
+  transform: rotate(-6deg);
+}
+
+.stage-pro__glow {
+  position: absolute;
+  bottom: -30px;
+  width: 220px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(89, 214, 122, 0.5), transparent 70%);
+  filter: blur(10px);
+}
+
 .spotlight-card {
   background: #1b1b2f;
   border-radius: 16px;
@@ -827,6 +952,19 @@ button:hover:not(:disabled) {
 .admin-panel {
   display: grid;
   gap: 12px;
+}
+
+.admin-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.admin-role {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .admin-log {

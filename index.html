@@ -186,6 +186,22 @@
 
         <section class="panel tab-panel" data-panel="learn">
           <h2>Michael Jackson Spotlight</h2>
+          <div class="stage-pro">
+            <div class="stage-pro__lights">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="stage-pro__dancer">
+              <div class="stage-pro__hat"></div>
+              <div class="stage-pro__body"></div>
+              <div class="stage-pro__arm left"></div>
+              <div class="stage-pro__arm right"></div>
+              <div class="stage-pro__leg left"></div>
+              <div class="stage-pro__leg right"></div>
+            </div>
+            <div class="stage-pro__glow"></div>
+          </div>
           <div class="spotlight-grid">
             <div class="spotlight-card">
               <h3>Iconic Albums</h3>
@@ -247,7 +263,12 @@
               </div>
               <p class="hint">Hint: ask the host for the show code.</p>
             </div>
+            <button id="adminReveal" class="ghost admin-reveal">Reveal Panel</button>
             <div id="adminPanel" class="admin-panel hidden">
+              <div class="admin-title">
+                <span>Console Controls</span>
+                <span id="adminRole" class="admin-role">Role: Viewer</span>
+              </div>
               <div id="adminLog" class="admin-log" aria-live="polite"></div>
               <div class="admin-input">
                 <input
