@@ -131,6 +131,10 @@ const registerMiss = () => {
 export const startRun = () => {
   if (state.run.running) return;
   if (resetLock) return;
+  if (state.run.rafId) {
+    cancelAnimationFrame(state.run.rafId);
+    state.run.rafId = null;
+  }
   const level = getLevel();
   setState((draft) => {
     draft.run.running = true;
@@ -183,9 +187,11 @@ export const resetRun = () => {
 
   if (state.run.rafId) {
     cancelAnimationFrame(state.run.rafId);
+    state.run.rafId = null;
   }
   if (state.run.timerId) {
     clearInterval(state.run.timerId);
+    state.run.timerId = null;
   }
   notes.forEach((note) => note.element.remove());
   notes.length = 0;
@@ -217,6 +223,7 @@ export const resetRun = () => {
 export const endRun = () => {
   if (state.run.rafId) {
     cancelAnimationFrame(state.run.rafId);
+    state.run.rafId = null;
   }
   setState((draft) => {
     draft.run.running = false;
