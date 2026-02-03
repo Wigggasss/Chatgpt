@@ -7,337 +7,431 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="titleScreen" class="title-screen">
-      <div class="title-card">
-        <p class="eyebrow">Tribute Rhythm Game</p>
-        <h1>Moonwalk Mania</h1>
-        <p class="subtitle">Step in, hit the beats, and keep the glow alive.</p>
-        <div class="title-tutorial">
-          <p class="eyebrow">Quick Tutorial</p>
-          <ol>
-            <li>Press Start Show to launch the beat.</li>
-            <li>Use arrow keys or WASD on the hit line.</li>
-            <li>Perfect hits boost your multiplier fast.</li>
-          </ol>
-        </div>
-        <div class="title-actions">
-          <button id="titleStartButton" class="primary">Enter the Show</button>
-          <button id="titleSkipButton" class="ghost">Skip to Game</button>
-        </div>
-        <p class="title-hint">Tip: Discover the secret admin path during the show.</p>
-      </div>
-    </div>
-
-    <div id="signupScreen" class="signup-screen hidden">
-      <div class="panel signup-panel">
-        <h2>Join the Moonwalk Crew</h2>
-        <p class="hint">Create a quick profile to save your vibe and show highlights.</p>
-        <form id="signupForm" class="signup-form">
-          <label>
-            Display name
-            <input id="signupName" type="text" required placeholder="Stage name" />
-          </label>
-          <label>
-            Favorite MJ track
-            <input id="signupTrack" type="text" required placeholder="e.g. Billie Jean" />
-          </label>
-          <label>
-            Rhythm level
-            <select id="signupLevel">
-              <option value="rookie">Rookie</option>
-              <option value="groover">Groover</option>
-              <option value="headline">Headline</option>
-            </select>
-          </label>
-          <button class="primary" type="submit">Save Profile</button>
-        </form>
-        <div id="signupSummary" class="signup-summary hidden"></div>
-        <button id="signupContinue" class="ghost hidden">Continue to Game</button>
-      </div>
-    </div>
-
-    <div class="page hidden" id="gameShell">
-      <header class="hero">
-        <div>
-          <p class="eyebrow">Tribute Rhythm Game</p>
-          <h1>Moonwalk Mania</h1>
-          <p class="subtitle">Match the cues with tight timing and build your multiplier.</p>
-        </div>
-        <div class="stage">
-          <div class="spotlight"></div>
-          <div class="dancer-3d" aria-hidden="true">
-            <div class="silhouette">
-              <div class="hat"></div>
-              <div class="head"></div>
-              <div class="torso"></div>
-              <div class="arm left"></div>
-              <div class="arm right"></div>
-              <div class="leg left"></div>
-              <div class="leg right"></div>
-            </div>
-            <div class="shadow"></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="profile-card" id="profileCard">
+          <div class="avatar" id="profileAvatar">MJ</div>
+          <div>
+            <p class="profile-name" id="profileName">Guest Dancer</p>
+            <p class="profile-status" id="profileStatus">Not signed in</p>
           </div>
-          <p class="stage-caption">Moonwalk tribute show inspired by Michael Jackson's legendary stage presence.</p>
+          <button class="ghost" id="profileLoginButton">Login</button>
         </div>
-      </header>
 
-      <nav class="menu">
-        <button class="menu-tab active" data-tab="play">Play</button>
-        <button class="menu-tab" data-tab="learn">Learn</button>
-        <button class="menu-tab" data-tab="levels">Levels</button>
-        <button class="menu-tab" data-tab="controls">Controls</button>
-        <button class="menu-tab" data-tab="leaderboard">Leaderboard</button>
-        <button class="menu-tab" data-tab="admin">Admin Console</button>
-      </nav>
-      <p class="menu-hint">Choose a tab to play, learn, or review your best scores.</p>
+        <div class="nav-section">
+          <p class="nav-heading">Game</p>
+          <button class="nav-item active" data-page="play">
+            <span>▶</span> Play
+          </button>
+          <button class="nav-item" data-page="learn">
+            <span>❓</span> Learn
+          </button>
+          <button class="nav-item" data-page="levels">
+            <span>⚡</span> Levels
+          </button>
+          <button class="nav-item" data-page="tracks">
+            <span>♪</span> Tracks
+          </button>
+        </div>
 
-      <main class="game">
-        <section class="panel panel-wide">
-          <div class="toggles">
-            <label class="toggle">
-              <input type="checkbox" id="soundToggle" checked />
-              <span>Metronome</span>
-            </label>
-            <label class="toggle">
-              <input type="checkbox" id="autoAdvanceToggle" checked />
-              <span>Auto-advance cues</span>
-            </label>
-          </div>
-        </section>
+        <div class="nav-section">
+          <p class="nav-heading">Social</p>
+          <button class="nav-item" data-page="leaderboard">
+            <span>🏆</span> Leaderboard
+          </button>
+          <button class="nav-item" data-page="profile">
+            <span>👤</span> Profile
+          </button>
+        </div>
 
-        <section class="panel tab-panel" data-panel="play">
-          <h2>Performance</h2>
-          <div class="stats">
-            <div>
-              <span class="label">Score</span>
-              <span id="score" class="value">0</span>
-            </div>
-            <div>
-              <span class="label">Streak</span>
-              <span id="streak" class="value">0</span>
-            </div>
+        <div class="nav-section">
+          <p class="nav-heading">Support</p>
+          <button class="nav-item" data-page="controls">
+            <span>🎛</span> Controls
+          </button>
+          <button class="nav-item" data-page="settings">
+            <span>⚙</span> Settings
+          </button>
+        </div>
+
+        <div class="nav-section admin-section hidden" id="adminNavSection">
+          <p class="nav-heading">Admin</p>
+          <button class="nav-item" data-page="admin">
+            <span>🛠</span> Admin Console
+          </button>
+        </div>
+
+        <div class="sidebar-footer">
+          <button class="ghost" data-page="settings">Settings</button>
+          <span class="version">v2.0.0</span>
+        </div>
+      </aside>
+
+      <div class="main">
+        <header class="topbar">
+          <div class="status-chip" id="runStatus">Ready</div>
+          <div class="topbar-meta">
             <div>
               <span class="label">Level</span>
-              <span id="level" class="value">1</span>
+              <span id="currentLevelLabel">Club Intro</span>
             </div>
             <div>
-              <span class="label">Multiplier</span>
-              <span id="multiplier" class="value">1.0x</span>
+              <span class="label">Track</span>
+              <span id="currentTrackLabel">Billie Jean</span>
             </div>
             <div>
-              <span class="label">Accuracy</span>
-              <span id="accuracy" class="value">100%</span>
+              <span class="label">Orientation</span>
+              <span id="layoutIndicator">Horizontal</span>
             </div>
             <div>
-              <span class="label">Tempo</span>
-              <span id="tempo" class="value">92 BPM</span>
-            </div>
-            <div>
-              <span class="label">High Score</span>
-              <span id="highScore" class="value">0</span>
-            </div>
-            <div>
-              <span class="label">Time</span>
-              <span id="time" class="value">75</span>
+              <span class="label">Network</span>
+              <span id="syncIndicator">Online</span>
             </div>
           </div>
-          <div class="progress">
-            <div id="progressBar" class="progress-bar"></div>
-          </div>
-          <div class="message" id="message">Hit start to begin the show.</div>
-        </section>
+          <div class="announcement" id="announcementBanner">Welcome to Moonwalk Mania.</div>
+        </header>
 
-        <section class="panel tab-panel" data-panel="play">
-          <h2>Beat Lane</h2>
-          <div class="lane" id="lane">
-            <div class="target">
-              <span class="target-label">Hit Line</span>
-            </div>
-          </div>
-          <div class="lane-legend">
-            <div><span class="dot perfect"></span>Perfect</div>
-            <div><span class="dot good"></span>Good</div>
-            <div><span class="dot okay"></span>Okay</div>
-          </div>
-          <p class="hint">Press the arrow key or WASD when a beat reaches the hit line.</p>
-          <div class="timing-feedback" id="timingFeedback">Hit the beat to hear your timing callout.</div>
-          <div class="timing-coach" id="timingCoach">
-            <div class="coach-header">
-              <span>Timing Coach</span>
-              <span id="timingHint" class="coach-hint">Nail the center for maximum points.</span>
-            </div>
-            <div class="coach-meter">
-              <span class="coach-label early">Early</span>
-              <div class="coach-bar">
-                <div class="coach-zone perfect"></div>
-                <div class="coach-zone good"></div>
-                <div class="coach-zone okay"></div>
-                <div id="coachMarker" class="coach-marker"></div>
-              </div>
-              <span class="coach-label late">Late</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel tab-panel" data-panel="play">
-          <h2>Move Deck</h2>
-          <div class="move-grid" id="moveGrid">
-            <div class="move-card" data-move="left">
-              <span>◀︎</span>
-              <p>Slide Left</p>
-            </div>
-            <div class="move-card" data-move="up">
-              <span>▲</span>
-              <p>Tip Hat</p>
-            </div>
-            <div class="move-card" data-move="down">
-              <span>▼</span>
-              <p>Spin Drop</p>
-            </div>
-            <div class="move-card" data-move="right">
-              <span>▶︎</span>
-              <p>Slide Right</p>
-            </div>
-          </div>
-          <div class="queue">
-            <h3>Next Up</h3>
-            <div id="queueList" class="queue-list"></div>
-          </div>
-        </section>
-
-        <section class="panel tab-panel" data-panel="levels">
-          <h2>Show Levels</h2>
-          <div class="levels" id="levels">
-            <button class="level-button active" data-level="1">Club Intro</button>
-            <button class="level-button" data-level="2">Tour Vibes</button>
-            <button class="level-button" data-level="3">Stadium Finale</button>
-          </div>
-          <p class="hint">Higher levels speed up the beat and reward bigger scores.</p>
-        </section>
-
-        <section class="panel tab-panel" data-panel="controls">
-          <h2>Show Rules</h2>
-          <ul>
-            <li>Hit the beat inside the timing window to score.</li>
-            <li>Perfect hits raise your multiplier faster.</li>
-            <li>Missed beats reset your streak.</li>
-          </ul>
-        </section>
-
-        <section class="panel tab-panel" data-panel="learn">
-          <h2>Michael Jackson Spotlight</h2>
-          <div class="stage-pro">
-            <div class="stage-pro__lights">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-            <div class="stage-pro__dancer">
-              <div class="stage-pro__hat"></div>
-              <div class="stage-pro__body"></div>
-              <div class="stage-pro__arm left"></div>
-              <div class="stage-pro__arm right"></div>
-              <div class="stage-pro__leg left"></div>
-              <div class="stage-pro__leg right"></div>
-            </div>
-            <div class="stage-pro__glow"></div>
-          </div>
-          <div class="spotlight-grid">
-            <div class="spotlight-card">
-              <h3>Iconic Albums</h3>
-              <p><strong>Thriller</strong>, <strong>Bad</strong>, and <strong>Dangerous</strong> raised the bar.</p>
-            </div>
-            <div class="spotlight-card">
-              <h3>Signature Moves</h3>
-              <p>Moonwalks, leans, and spins shaped modern choreography.</p>
-            </div>
-            <div class="spotlight-card">
-              <h3>Stagecraft</h3>
-              <p>Precision lighting and fashion turned concerts into theater.</p>
-            </div>
-            <div class="spotlight-card">
-              <h3>Legacy</h3>
-              <p>Music videos and humanitarian work still inspire artists.</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel tab-panel" data-panel="learn">
-          <h2>Legend Learning Lab</h2>
-          <p class="hint">Play the quiz game to unlock facts while you learn.</p>
-          <div class="quiz" id="quiz">
-            <div class="quiz-stats">
+        <main class="page-panel">
+          <section class="page active" data-page="play">
+            <div class="page-header">
               <div>
-                <span class="label">Quiz Score</span>
-                <span id="quizScore" class="value">0</span>
+                <h1>Moonwalk Mania</h1>
+                <p class="subtitle">Hit the line, stack the streak, own the spotlight.</p>
               </div>
+              <div class="header-actions">
+                <button class="primary" id="startButton">Start Show</button>
+                <button class="ghost" id="pauseButton" disabled>Pause</button>
+                <button class="ghost" id="resetButton">Reset</button>
+              </div>
+            </div>
+
+            <div class="hud-grid">
+              <div class="hud-card">
+                <span class="label">Score</span>
+                <span class="value" id="score">0</span>
+              </div>
+              <div class="hud-card">
+                <span class="label">Streak</span>
+                <span class="value" id="streak">0</span>
+              </div>
+              <div class="hud-card">
+                <span class="label">Multiplier</span>
+                <span class="value" id="multiplier">1.0x</span>
+              </div>
+              <div class="hud-card">
+                <span class="label">Accuracy</span>
+                <span class="value" id="accuracy">100%</span>
+              </div>
+              <div class="hud-card">
+                <span class="label">Time</span>
+                <span class="value" id="time">0</span>
+              </div>
+              <div class="hud-card">
+                <span class="label">Track</span>
+                <span class="value" id="hudTrack">Billie Jean</span>
+              </div>
+            </div>
+
+            <div class="panel tutorial-panel">
+              <div class="panel-header">
+                <h2>Quick Tutorial</h2>
+                <span class="hint">Start here</span>
+              </div>
+              <ul class="bullet-list">
+                <li>Press Start Show to begin.</li>
+                <li>Hit notes on the line with arrows or WASD.</li>
+                <li>Perfect hits build multipliers faster.</li>
+              </ul>
+            </div>
+
+            <div class="play-grid">
+              <div class="panel">
+                <div class="panel-header">
+                  <h2>Beat Lane</h2>
+                  <span class="hint">Use arrow keys or WASD.</span>
+                </div>
+                <div class="lane" id="lane">
+                  <div class="hit-line"></div>
+                </div>
+                <div class="timing-feedback" id="timingFeedback">Press Start to begin.</div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-header">
+                  <h2>Character Showcase</h2>
+                  <span class="hint">MJ-inspired performer</span>
+                </div>
+                <div class="dancer-stage" id="dancerStage">
+                  <div class="dancer-silhouette" id="dancer"></div>
+                  <div class="stage-glow"></div>
+                </div>
+                <div class="panel-row">
+                  <span class="label">FX</span>
+                  <span id="fxIndicator">Medium</span>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-header">
+                  <h2>Now Playing</h2>
+                  <span class="hint" id="trackHint">Official preview</span>
+                </div>
+                <div class="track-embed" id="trackEmbed"></div>
+                <div class="panel-row">
+                  <span class="label">Level</span>
+                  <span id="levelLabel">Club Intro</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" data-page="learn">
+            <div class="page-header">
               <div>
-                <span class="label">Correct Streak</span>
-                <span id="quizStreak" class="value">0</span>
+                <h1>Legend Learning Lab</h1>
+                <p class="subtitle">Play the quiz and earn MJ facts.</p>
+              </div>
+              <div class="header-actions">
+                <button class="primary" id="quizStartButton">Start Quiz</button>
+                <button class="ghost" id="quizNextButton" disabled>Next Question</button>
               </div>
             </div>
-            <div class="quiz-question" id="quizQuestion">Press “Start Quiz” to begin.</div>
-            <div class="quiz-choices" id="quizChoices"></div>
-            <div class="quiz-feedback" id="quizFeedback">Ready to learn something new?</div>
-            <div class="quiz-actions">
-              <button id="quizStartButton" class="primary">Start Quiz</button>
-              <button id="quizNextButton" class="ghost" disabled>Next Question</button>
+            <div class="panel quiz-panel">
+              <div class="quiz-stats">
+                <div>
+                  <span class="label">Quiz Score</span>
+                  <span class="value" id="quizScore">0</span>
+                </div>
+                <div>
+                  <span class="label">Streak</span>
+                  <span class="value" id="quizStreak">0</span>
+                </div>
+              </div>
+              <div class="quiz-question" id="quizQuestion">Press Start Quiz to begin.</div>
+              <div class="quiz-choices" id="quizChoices"></div>
+              <div class="quiz-feedback" id="quizFeedback">Ready to learn?</div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="panel tab-panel" data-panel="leaderboard">
-          <h2>Show Leaderboard</h2>
-          <p class="hint">Top performances from this device.</p>
-          <ol id="leaderboardList" class="leaderboard-list"></ol>
-        </section>
+          <section class="page" data-page="levels">
+            <div class="page-header">
+              <div>
+                <h1>Levels</h1>
+                <p class="subtitle">Choose a show intensity. Reset to apply if running.</p>
+              </div>
+            </div>
+            <div class="panel" id="levelsPanel"></div>
+          </section>
 
-        <section class="panel tab-panel admin-section hidden" data-panel="admin" id="adminSection">
-          <h2>Admin Console</h2>
-          <p class="hint">Use commands to control the show. Type <strong>help</strong> to list commands.</p>
-          <div class="admin-console">
-            <div id="adminLock" class="admin-lock">
-              <p>Enter the access code to unlock admin controls.</p>
-              <div class="admin-input">
-                <input id="adminCode" type="password" placeholder="Access code" autocomplete="off" />
-                <button id="adminUnlock" class="primary">Unlock</button>
-              </div>
-              <p class="hint">Hint: ask the host for the show code.</p>
-            </div>
-            <button id="adminReveal" class="ghost admin-reveal">Reveal Panel</button>
-            <div id="adminPanel" class="admin-panel hidden">
-              <div class="admin-title">
-                <span>Console Controls</span>
-                <span id="adminRole" class="admin-role">Role: Viewer</span>
-              </div>
-              <div class="admin-users">
-                <h3>Registered Users</h3>
-                <p class="hint">Assign roles or custom command permissions to signed-up profiles.</p>
-                <div id="adminUsers" class="admin-users-list"></div>
-              </div>
-              <div id="adminLog" class="admin-log" aria-live="polite"></div>
-              <div class="admin-input">
-                <input
-                  id="adminCommand"
-                  type="text"
-                  placeholder="Enter command (e.g. level 2)"
-                  autocomplete="off"
-                  list="adminCommandList"
-                  disabled
-                />
-                <button id="adminRun" class="primary" disabled>Run</button>
-                <datalist id="adminCommandList"></datalist>
+          <section class="page" data-page="tracks">
+            <div class="page-header">
+              <div>
+                <h1>Tracks</h1>
+                <p class="subtitle">MJ-only official previews.</p>
               </div>
             </div>
-          </div>
-        </section>
-      </main>
+            <div class="panel" id="tracksPanel"></div>
+          </section>
+
+          <section class="page" data-page="leaderboard">
+            <div class="page-header">
+              <div>
+                <h1>Global Leaderboards</h1>
+                <p class="subtitle">Top performances per level.</p>
+              </div>
+              <div class="header-actions">
+                <select id="leaderboardLevelSelect"></select>
+              </div>
+            </div>
+            <div class="panel" id="leaderboardPanel"></div>
+          </section>
+
+          <section class="page" data-page="profile">
+            <div class="page-header">
+              <div>
+                <h1>Profile & Login</h1>
+                <p class="subtitle">Save your progress across devices.</p>
+              </div>
+            </div>
+            <div class="panel profile-panel">
+              <form id="authForm" class="form-grid">
+                <label>
+                  Email
+                  <input type="email" id="authEmail" placeholder="you@example.com" />
+                </label>
+                <label>
+                  Password
+                  <input type="password" id="authPassword" placeholder="••••••••" />
+                </label>
+                <div class="form-actions">
+                  <button type="button" class="primary" id="loginButton">Login</button>
+                  <button type="button" class="ghost" id="signupButton">Create Account</button>
+                  <button type="button" class="ghost" id="googleButton">Google Login</button>
+                  <button type="button" class="ghost" id="logoutButton">Logout</button>
+                </div>
+              </form>
+              <div class="profile-settings">
+                <label>
+                  Display Name (max 16)
+                  <input type="text" id="displayNameInput" maxlength="16" />
+                </label>
+                <label>
+                  Favorite Track
+                  <input type="text" id="favoriteTrackInput" />
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" data-page="controls">
+            <div class="page-header">
+              <div>
+                <h1>Controls</h1>
+                <p class="subtitle">Keep it simple: arrows or WASD.</p>
+              </div>
+            </div>
+            <div class="panel">
+              <ul class="bullet-list">
+                <li>Arrow keys or WASD to hit notes.</li>
+                <li>Space toggles pause during play.</li>
+                <li>Reset between level/track changes.</li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="page" data-page="settings">
+            <div class="page-header">
+              <div>
+                <h1>Settings</h1>
+                <p class="subtitle">Tune the vibe and layout.</p>
+              </div>
+            </div>
+            <div class="panel settings-panel">
+              <div class="form-grid">
+                <label>
+                  Theme
+                  <select id="themeSelect"></select>
+                </label>
+                <label>
+                  Orientation
+                  <select id="layoutSelect">
+                    <option value="horizontal">Horizontal</option>
+                    <option value="vertical">Vertical</option>
+                  </select>
+                </label>
+                <label>
+                  Note Size
+                  <select id="noteSizeSelect">
+                    <option value="small">Small</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="large">Large</option>
+                  </select>
+                </label>
+                <label>
+                  Lane Scale
+                  <input type="range" id="laneScaleInput" min="0.9" max="1.2" step="0.05" />
+                </label>
+                <label>
+                  FX Intensity
+                  <select id="fxSelect">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </label>
+                <label>
+                  Dancer
+                  <select id="dancerSelect">
+                    <option value="off">Off</option>
+                    <option value="low" selected>Low</option>
+                    <option value="high">High</option>
+                  </select>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" id="muteToggle" />
+                  Mute audio
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" id="autoplayToggle" />
+                  Autoplay preview (may be blocked)
+                </label>
+              </div>
+              <p class="hint" id="settingsHint"></p>
+            </div>
+          </section>
+
+          <section class="page" data-page="admin">
+            <div class="page-header">
+              <div>
+                <h1>Admin Console</h1>
+                <p class="subtitle">Draft, publish, and sync global changes.</p>
+              </div>
+            </div>
+            <div class="panel admin-panel">
+              <div class="admin-header">
+                <div>
+                  <span class="label">Draft changes</span>
+                  <span id="draftCount">0</span>
+                </div>
+                <div>
+                  <span class="label">Published version</span>
+                  <span id="publishedVersion">0</span>
+                </div>
+                <div class="admin-actions">
+                  <button class="ghost" id="adminUndo">Undo</button>
+                  <button class="primary" id="adminPublish">Publish</button>
+                </div>
+              </div>
+              <div class="admin-grid">
+                <div>
+                  <div class="console">
+                    <div class="console-log" id="adminLog"></div>
+                    <div class="console-input">
+                      <input type="text" id="adminCommand" placeholder="command" />
+                      <button class="primary" id="adminRun">Run</button>
+                      <button class="ghost" id="adminClear">Clear</button>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="control-cards" id="adminControls"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
     </div>
-    <div class="control-dock" aria-label="Show controls">
-      <button id="startButton" class="control-dock__button primary" data-action="start">Start Show</button>
-      <button id="pauseButton" class="control-dock__button ghost" data-action="pause" disabled>Pause/Resume</button>
-      <button id="resetButton" class="control-dock__button ghost" data-action="reset">Reset</button>
+
+    <div class="modal hidden" id="summaryModal">
+      <div class="modal-card">
+        <h2>Show Summary</h2>
+        <div class="summary-grid">
+          <div><span class="label">Final Score</span><span id="summaryScore">0</span></div>
+          <div><span class="label">Accuracy</span><span id="summaryAccuracy">0%</span></div>
+          <div><span class="label">Max Streak</span><span id="summaryMaxStreak">0</span></div>
+          <div><span class="label">Avg Multiplier</span><span id="summaryAvgMultiplier">1.0x</span></div>
+          <div><span class="label">Notes Hit</span><span id="summaryNotes">0/0</span></div>
+          <div><span class="label">Perfect</span><span id="summaryPerfect">0</span></div>
+          <div><span class="label">Good</span><span id="summaryGood">0</span></div>
+          <div><span class="label">Okay</span><span id="summaryOkay">0</span></div>
+          <div><span class="label">Miss</span><span id="summaryMiss">0</span></div>
+          <div><span class="label">Score Breakdown</span><span id="summaryBreakdown">0/0/0</span></div>
+          <div><span class="label">Level</span><span id="summaryLevel">-</span></div>
+          <div><span class="label">Track</span><span id="summaryTrack">-</span></div>
+          <div><span class="label">Time Played</span><span id="summaryTime">0s</span></div>
+          <div><span class="label">Personal Best</span><span id="summaryPersonalBest">-</span></div>
+          <div><span class="label">Submission</span><span id="summarySubmit">Pending</span></div>
+        </div>
+        <div class="modal-actions">
+          <button class="primary" id="summaryPlayAgain">Play Again</button>
+          <button class="ghost" id="summaryBackLevels">Levels</button>
+          <button class="ghost" id="summaryViewLeaderboard">Leaderboard</button>
+          <button class="ghost" id="summaryClose">Close</button>
+        </div>
+      </div>
     </div>
-    <script src="script.js"></script>
+
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>
