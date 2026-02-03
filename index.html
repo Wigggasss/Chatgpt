@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moonwalk Mania</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Tribute Rhythm Game</p>
+          <h1>Moonwalk Mania</h1>
+          <p class="subtitle">
+            Step into the spotlight and follow the signature moves. Match the cues, build your streak,
+            and keep the dance floor glowing.
+          </p>
+          <div class="actions">
+            <button id="startButton" class="primary">Start Show</button>
+            <button id="resetButton" class="ghost">Reset</button>
+          </div>
+        </div>
+        <div class="stage">
+          <div class="spotlight"></div>
+          <div class="dancer" aria-hidden="true">
+            <div class="hat"></div>
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+            <div class="leg left"></div>
+            <div class="leg right"></div>
+          </div>
+          <p class="stage-caption">Inspired by Michael Jackson's legendary stage presence.</p>
+        </div>
+      </header>
+
+      <main class="game">
+        <section class="panel">
+          <h2>Performance</h2>
+          <div class="stats">
+            <div>
+              <span class="label">Score</span>
+              <span id="score" class="value">0</span>
+            </div>
+            <div>
+              <span class="label">Streak</span>
+              <span id="streak" class="value">0</span>
+            </div>
+            <div>
+              <span class="label">High Score</span>
+              <span id="highScore" class="value">0</span>
+            </div>
+            <div>
+              <span class="label">Time</span>
+              <span id="time" class="value">60</span>
+            </div>
+          </div>
+          <div class="progress">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          <div class="message" id="message">Hit start to begin the show.</div>
+        </section>
+
+        <section class="panel">
+          <h2>Move Queue</h2>
+          <div class="move-grid" id="moveGrid">
+            <div class="move-card" data-move="left">
+              <span>◀︎</span>
+              <p>Slide Left</p>
+            </div>
+            <div class="move-card" data-move="up">
+              <span>▲</span>
+              <p>Tip Hat</p>
+            </div>
+            <div class="move-card" data-move="down">
+              <span>▼</span>
+              <p>Spin Drop</p>
+            </div>
+            <div class="move-card" data-move="right">
+              <span>▶︎</span>
+              <p>Slide Right</p>
+            </div>
+          </div>
+          <p class="hint">Use arrow keys or WASD to match the highlighted move.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Show Rules</h2>
+          <ul>
+            <li>Follow the cue before the beat line reaches the edge.</li>
+            <li>Each correct move boosts your score and streak.</li>
+            <li>Missed beats reset your streak but keep the show going.</li>
+            <li>Finish the 60-second set to lock in your high score.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
