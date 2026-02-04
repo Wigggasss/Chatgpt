@@ -6,6 +6,8 @@ export const state = {
     status: "Ready",
     network: "Online",
     announcement: globalConfigDefaults.announcementBannerText,
+    scene: "menu",
+    adminUnlocked: false,
   },
   selection: {
     levelId: 1,
@@ -43,6 +45,7 @@ export const state = {
   auth: {
     user: null,
     status: "guest",
+    role: "guest",
   },
   profile: {
     displayName: "Guest Dancer",

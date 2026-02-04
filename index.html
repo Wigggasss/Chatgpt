@@ -100,39 +100,10 @@
             <div class="page-header">
               <div>
                 <h1>Moonwalk Mania</h1>
-                <p class="subtitle">Hit the line, stack the streak, own the spotlight.</p>
+                <p class="subtitle">Launch the dedicated Game Scene for a clean, osu!-style run.</p>
               </div>
               <div class="header-actions">
-                <button class="primary" id="startButton">Start Show</button>
-                <button class="ghost" id="pauseButton" disabled>Pause</button>
-                <button class="ghost" id="resetButton">Reset</button>
-              </div>
-            </div>
-
-            <div class="hud-grid">
-              <div class="hud-card">
-                <span class="label">Score</span>
-                <span class="value" id="score">0</span>
-              </div>
-              <div class="hud-card">
-                <span class="label">Streak</span>
-                <span class="value" id="streak">0</span>
-              </div>
-              <div class="hud-card">
-                <span class="label">Multiplier</span>
-                <span class="value" id="multiplier">1.0x</span>
-              </div>
-              <div class="hud-card">
-                <span class="label">Accuracy</span>
-                <span class="value" id="accuracy">100%</span>
-              </div>
-              <div class="hud-card">
-                <span class="label">Time</span>
-                <span class="value" id="time">0</span>
-              </div>
-              <div class="hud-card">
-                <span class="label">Track</span>
-                <span class="value" id="hudTrack">Billie Jean</span>
+                <button class="primary" id="enterGameButton">Enter Game Scene</button>
               </div>
             </div>
 
@@ -142,39 +113,13 @@
                 <span class="hint">Start here</span>
               </div>
               <ul class="bullet-list">
-                <li>Press Start Show to begin.</li>
-                <li>Hit notes on the line with arrows or WASD.</li>
-                <li>Perfect hits build multipliers faster.</li>
+                <li>Enter the Game Scene to play.</li>
+                <li>Hit the next note on the line with arrows or WASD.</li>
+                <li>Wrong direction breaks streak—timing matters.</li>
               </ul>
             </div>
 
             <div class="play-grid">
-              <div class="panel">
-                <div class="panel-header">
-                  <h2>Beat Lane</h2>
-                  <span class="hint">Use arrow keys or WASD.</span>
-                </div>
-                <div class="lane" id="lane">
-                  <div class="hit-line"></div>
-                </div>
-                <div class="timing-feedback" id="timingFeedback">Press Start to begin.</div>
-              </div>
-
-              <div class="panel">
-                <div class="panel-header">
-                  <h2>Character Showcase</h2>
-                  <span class="hint">MJ-inspired performer</span>
-                </div>
-                <div class="dancer-stage" id="dancerStage">
-                  <div class="dancer-silhouette" id="dancer"></div>
-                  <div class="stage-glow"></div>
-                </div>
-                <div class="panel-row">
-                  <span class="label">FX</span>
-                  <span id="fxIndicator">Medium</span>
-                </div>
-              </div>
-
               <div class="panel">
                 <div class="panel-header">
                   <h2>Now Playing</h2>
@@ -185,6 +130,17 @@
                   <span class="label">Level</span>
                   <span id="levelLabel">Club Intro</span>
                 </div>
+              </div>
+              <div class="panel">
+                <div class="panel-header">
+                  <h2>Focus Rules</h2>
+                  <span class="hint">No spam, no clutter</span>
+                </div>
+                <ul class="bullet-list">
+                  <li>Only the next note can be hit.</li>
+                  <li>Wrong key = miss and streak break.</li>
+                  <li>Use Reset between level/track changes.</li>
+                </ul>
               </div>
             </div>
           </section>
@@ -372,6 +328,12 @@
               </div>
             </div>
             <div class="panel admin-panel">
+              <div class="admin-lock hidden" id="adminGate">
+                <div>
+                  <h2>Admin Access Required</h2>
+                  <p class="subtitle">Authorized roles only. Unlock to view tools.</p>
+                </div>
+              </div>
               <div class="admin-header">
                 <div>
                   <span class="label">Draft changes</span>
@@ -404,6 +366,74 @@
             </div>
           </section>
         </main>
+      </div>
+    </div>
+
+    <div class="game-scene hidden" id="gameScene">
+      <div class="game-topbar">
+        <button class="ghost" id="exitGameButton">Exit to Menu</button>
+        <div class="game-status">
+          <span class="status-chip" id="gameRunStatus">Ready</span>
+          <span class="game-status-meta" id="gameStatusMeta">Level 1 · Billie Jean</span>
+        </div>
+      </div>
+      <div class="game-hud">
+        <div class="hud-card">
+          <span class="label">Score</span>
+          <span class="value" id="score">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="label">Streak</span>
+          <span class="value" id="streak">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="label">Multiplier</span>
+          <span class="value" id="multiplier">1.0x</span>
+        </div>
+        <div class="hud-card">
+          <span class="label">Accuracy</span>
+          <span class="value" id="accuracy">100%</span>
+        </div>
+        <div class="hud-card">
+          <span class="label">Time</span>
+          <span class="value" id="time">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="label">Level</span>
+          <span class="value" id="hudLevel">Club Intro</span>
+        </div>
+        <div class="hud-card">
+          <span class="label">Track</span>
+          <span class="value" id="hudTrack">Billie Jean</span>
+        </div>
+      </div>
+      <div class="game-body">
+        <div class="game-playfield">
+          <div class="lane" id="lane">
+            <div class="hit-line"></div>
+            <div class="hit-zone">HIT</div>
+          </div>
+          <div class="timing-feedback" id="timingFeedback">Press Start to begin.</div>
+        </div>
+        <div class="game-sidecard">
+          <div class="panel-header">
+            <h2>Character Showcase</h2>
+            <span class="hint">MJ-inspired performer</span>
+          </div>
+          <div class="dancer-stage" id="dancerStage">
+            <div class="dancer-silhouette" id="dancer"></div>
+            <div class="stage-glow"></div>
+          </div>
+          <div class="panel-row">
+            <span class="label">FX</span>
+            <span id="fxIndicator">Medium</span>
+          </div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <button class="primary" id="startButton">Start Game</button>
+        <button class="ghost" id="pauseButton" disabled>Pause</button>
+        <button class="ghost" id="resetButton">Reset</button>
       </div>
     </div>
 

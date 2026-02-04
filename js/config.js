@@ -59,6 +59,69 @@ export const tracks = [
   },
 ];
 
+export const trackProfiles = {
+  "billie-jean": {
+    segments: [
+      { durationSec: 18, spacingMs: 560, directions: ["left", "down", "right", "up"] },
+      { durationSec: 14, spacingMs: 520, directions: ["left", "right", "left", "right", "down", "up"] },
+      { durationSec: 12, spacingMs: 600, directions: ["left", "down", "right", "up"] },
+      { durationSec: 10, spacingMs: 480, directions: ["left", "left", "right", "down", "up"] },
+      { durationSec: 12, spacingMs: 540, directions: ["left", "down", "right", "up"] },
+    ],
+  },
+  "thriller": {
+    segments: [
+      { durationSec: 10, spacingMs: 700, directions: ["down", "left", "right", "up"] },
+      { durationSec: 8, spacingMs: 420, directions: ["left", "right", "left", "down", "up"] },
+      { durationSec: 10, spacingMs: 680, directions: ["down", "down", "left", "right"] },
+      { durationSec: 8, spacingMs: 360, directions: ["left", "right", "up", "down", "up"] },
+      { durationSec: 14, spacingMs: 620, directions: ["left", "down", "right", "up"] },
+    ],
+  },
+  "smooth-criminal": {
+    segments: [
+      { durationSec: 12, spacingMs: 460, directions: ["left", "right", "left", "right"] },
+      { durationSec: 10, spacingMs: 420, directions: ["left", "right", "down", "up"] },
+      { durationSec: 10, spacingMs: 380, directions: ["left", "right", "left", "right", "down"] },
+      { durationSec: 12, spacingMs: 440, directions: ["down", "up", "left", "right"] },
+      { durationSec: 10, spacingMs: 400, directions: ["left", "right", "left", "right", "up"] },
+    ],
+  },
+  "beat-it": {
+    segments: [
+      { durationSec: 8, spacingMs: 480, directions: ["down", "right", "left", "up"] },
+      { durationSec: 10, spacingMs: 360, directions: ["left", "right", "left", "right", "down", "up"] },
+      { durationSec: 12, spacingMs: 420, directions: ["down", "left", "right", "down", "up"] },
+      { durationSec: 10, spacingMs: 340, directions: ["left", "right", "left", "right", "down", "up"] },
+      { durationSec: 12, spacingMs: 440, directions: ["down", "down", "left", "right", "up"] },
+    ],
+  },
+  "rock-with-you": {
+    segments: [
+      { durationSec: 16, spacingMs: 620, directions: ["left", "down", "right", "up"] },
+      { durationSec: 12, spacingMs: 580, directions: ["left", "right", "down", "up"] },
+      { durationSec: 12, spacingMs: 640, directions: ["left", "down", "right", "up"] },
+      { durationSec: 10, spacingMs: 560, directions: ["left", "right", "left", "down", "up"] },
+    ],
+  },
+  "dont-stop": {
+    segments: [
+      { durationSec: 12, spacingMs: 520, directions: ["down", "left", "right", "up"] },
+      { durationSec: 10, spacingMs: 480, directions: ["left", "right", "down", "up"] },
+      { durationSec: 12, spacingMs: 460, directions: ["down", "left", "right", "down", "up"] },
+      { durationSec: 10, spacingMs: 420, directions: ["left", "right", "left", "right", "up"] },
+      { durationSec: 10, spacingMs: 500, directions: ["left", "down", "right", "up"] },
+    ],
+  },
+  default: {
+    segments: [
+      { durationSec: 12, spacingMs: 560, directions: ["left", "down", "right", "up"] },
+      { durationSec: 10, spacingMs: 520, directions: ["left", "right", "down", "up"] },
+      { durationSec: 10, spacingMs: 540, directions: ["left", "down", "right", "up"] },
+    ],
+  },
+};
+
 export const choreography = {
   "billie-jean": {
     baseAnim: "idle",

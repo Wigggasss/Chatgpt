@@ -1,7 +1,7 @@
 import { getSupabaseClient } from "./api.js";
 import { state, setState } from "./state.js";
 import { dom } from "./dom.js";
-import { updateProfileCard } from "./ui.js";
+import { updateAdminVisibility, updateProfileCard } from "./ui.js";
 
 export const initAuth = async () => {
   const client = await getSupabaseClient();
@@ -10,15 +10,25 @@ export const initAuth = async () => {
   setState((draft) => {
     draft.auth.user = data.session?.user || null;
     draft.auth.status = draft.auth.user ? "authed" : "guest";
+    draft.auth.role =
+      data.session?.user?.app_metadata?.role ||
+      data.session?.user?.user_metadata?.role ||
+      "guest";
   });
   updateProfileCard();
+  updateAdminVisibility(["admin", "superadmin", "mod"].includes(state.auth.role));
 
   client.auth.onAuthStateChange((_event, session) => {
     setState((draft) => {
       draft.auth.user = session?.user || null;
       draft.auth.status = draft.auth.user ? "authed" : "guest";
+      draft.auth.role =
+        session?.user?.app_metadata?.role ||
+        session?.user?.user_metadata?.role ||
+        "guest";
     });
     updateProfileCard();
+    updateAdminVisibility(["admin", "superadmin", "mod"].includes(state.auth.role));
   });
 };
 

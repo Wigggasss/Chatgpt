@@ -1,20 +1,66 @@
+import { trackProfiles } from "./config.js";
 import { state, setState } from "./state.js";
-import { getLevel } from "./ui.js";
+import { getLevel, getTrack } from "./ui.js";
 import { dom } from "./dom.js";
 
 const notes = [];
 const noteSpeedClamp = 1000 / 30;
 let resetLock = false;
 let onEndCallback = null;
+let nextSpawnAt = 0;
+let patternIndex = 0;
+let directionIndex = 0;
+let lastInputAt = 0;
 
-const spawnNote = (now) => {
+const directionSymbols = {
+  left: "←",
+  right: "→",
+  up: "↑",
+  down: "↓",
+};
+
+const directionRows = {
+  left: 25,
+  down: 45,
+  up: 65,
+  right: 85,
+};
+
+const getTrackProfile = () => trackProfiles[getTrack().id] || trackProfiles.default;
+
+const getPatternSegment = (timePlayed) => {
+  const profile = getTrackProfile();
+  let elapsed = 0;
+  for (let i = 0; i < profile.segments.length; i += 1) {
+    const segment = profile.segments[i];
+    elapsed += segment.durationSec;
+    if (timePlayed <= elapsed) {
+      return { segment, index: i };
+    }
+  }
+  return { segment: profile.segments[profile.segments.length - 1], index: profile.segments.length - 1 };
+};
+
+const resetPatternState = () => {
+  nextSpawnAt = 0;
+  patternIndex = 0;
+  directionIndex = 0;
+  lastInputAt = 0;
+};
+
+const spawnNote = (now, direction) => {
   const note = document.createElement("div");
-  note.className = `note size-${state.selection.noteSize}`;
+  note.className = `note size-${state.selection.noteSize} dir-${direction}`;
   note.dataset.spawn = now;
+  note.dataset.direction = direction;
+  note.textContent = directionSymbols[direction];
+  note.style.top = `${directionRows[direction]}%`;
+  note.style.left = `${dom.lane.clientWidth}px`;
   dom.lane.appendChild(note);
   notes.push({
     id: now,
     spawnTime: now,
+    direction,
     element: note,
   });
   state.run.totalNotes += 1;
@@ -29,7 +75,7 @@ const updateNotes = (now, dt) => {
   notes.forEach((note) => {
     const elapsed = (now - note.spawnTime) / 1000;
     const x = laneWidth - elapsed * speed;
-    note.element.style.transform = `translateX(${x}px)`;
+    note.element.style.left = `${x}px`;
   });
 
   for (let i = notes.length - 1; i >= 0; i -= 1) {
@@ -50,49 +96,50 @@ const updateNotes = (now, dt) => {
   state.run.timeLeft = Math.max(0, state.run.timeLeft - dt / 1000);
 };
 
-export const handleHit = () => {
+export const handleHit = (direction) => {
   if (!state.run.running || state.run.paused) return;
+  const now = performance.now();
+  if (now - lastInputAt < 90) return;
+  lastInputAt = now;
+
   if (!notes.length) {
     registerMiss();
     return "miss";
   }
-  const now = performance.now();
   const laneWidth = dom.lane.clientWidth;
   const hitX = laneWidth * 0.18;
   const level = getLevel();
 
-  let closestIndex = -1;
-  let closestDiff = Infinity;
-
-  notes.forEach((note, index) => {
-    const elapsed = (now - note.spawnTime) / 1000;
-    const x = laneWidth - elapsed * level.speedPxPerSec;
-    const diff = Math.abs(x - hitX);
-    if (diff < closestDiff) {
-      closestDiff = diff;
-      closestIndex = index;
-    }
-  });
-
-  if (closestIndex === -1) {
-    registerMiss();
-    return "miss";
-  }
-
-  const diffMs = (closestDiff / level.speedPxPerSec) * 1000;
-  const note = notes[closestIndex];
+  const note = notes[0];
+  const elapsed = (now - note.spawnTime) / 1000;
+  const x = laneWidth - elapsed * level.speedPxPerSec;
+  const diff = Math.abs(x - hitX);
+  const diffMs = (diff / level.speedPxPerSec) * 1000;
 
   if (diffMs <= level.wOkayMs) {
     const grade = diffMs <= level.wPerfectMs ? "perfect" : diffMs <= level.wGoodMs ? "good" : "okay";
+    if (note.direction !== direction) {
+      registerMiss();
+      note.element.remove();
+      notes.shift();
+      return "miss";
+    }
     registerHit(grade);
     note.element.classList.add("hit");
     note.element.remove();
-    notes.splice(closestIndex, 1);
+    notes.shift();
     return grade;
-  } else {
+  }
+
+  if (x < hitX) {
     registerMiss();
+    note.element.remove();
+    notes.shift();
     return "miss";
   }
+
+  registerMiss();
+  return "miss";
 };
 
 const registerHit = (grade) => {
@@ -135,6 +182,7 @@ export const startRun = () => {
     cancelAnimationFrame(state.run.rafId);
     state.run.rafId = null;
   }
+  resetPatternState();
   const level = getLevel();
   setState((draft) => {
     draft.run.running = true;
@@ -152,9 +200,18 @@ export const startRun = () => {
 
     if (!state.run.paused) {
       const levelData = getLevel();
-      const spawnInterval = 1000 / (levelData.density * 2);
-      if (now - state.run.lastSpawnAt >= spawnInterval) {
-        spawnNote(now);
+      const timePlayed = levelData.timeSec - state.run.timeLeft;
+      const { segment, index } = getPatternSegment(timePlayed);
+      if (patternIndex !== index) {
+        patternIndex = index;
+        directionIndex = 0;
+      }
+      const spacingMs = segment.spacingMs / levelData.density;
+      if (now >= nextSpawnAt) {
+        const direction = segment.directions[directionIndex % segment.directions.length];
+        spawnNote(now, direction);
+        directionIndex += 1;
+        nextSpawnAt = now + spacingMs;
         state.run.lastSpawnAt = now;
       }
       updateNotes(now, dt);
@@ -195,6 +252,7 @@ export const resetRun = () => {
   }
   notes.forEach((note) => note.element.remove());
   notes.length = 0;
+  resetPatternState();
 
   const level = getLevel();
   setState((draft) => {

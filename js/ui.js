@@ -119,17 +119,47 @@ export const updateHUD = () => {
   dom.accuracy.textContent = `${state.run.accuracy}%`;
   dom.time.textContent = Math.max(0, Math.ceil(state.run.timeLeft));
   dom.hudTrack.textContent = getTrack().name;
+  if (dom.hudLevel) {
+    dom.hudLevel.textContent = getLevel().name;
+  }
   dom.levelLabel.textContent = getLevel().name;
   dom.currentLevelLabel.textContent = getLevel().name;
   dom.currentTrackLabel.textContent = getTrack().name;
   dom.layoutIndicator.textContent = state.selection.layout === "vertical" ? "Vertical" : "Horizontal";
   dom.fxIndicator.textContent = state.selection.fx;
+  if (dom.gameStatusMeta) {
+    dom.gameStatusMeta.textContent = `${getLevel().name} · ${getTrack().name}`;
+  }
 };
 
 export const updateStatus = () => {
   dom.runStatus.textContent = state.ui.status;
+  if (dom.gameRunStatus) {
+    dom.gameRunStatus.textContent = state.ui.status;
+  }
   dom.syncIndicator.textContent = state.ui.network;
   dom.announcementBanner.textContent = state.ui.announcement;
+};
+
+export const setGameSceneActive = (active) => {
+  document.body.classList.toggle("game-mode", active);
+  dom.gameScene.classList.toggle("hidden", !active);
+  setState((draft) => {
+    draft.ui.scene = active ? "game" : "menu";
+  });
+};
+
+export const updateAdminVisibility = (isAdmin) => {
+  if (!isAdmin) {
+    setState((draft) => {
+      draft.ui.adminUnlocked = false;
+    });
+  }
+  const shouldShowNav = isAdmin && state.ui.adminUnlocked;
+  dom.adminNavSection.classList.toggle("hidden", !shouldShowNav);
+  if (dom.adminGate) {
+    dom.adminGate.classList.toggle("hidden", isAdmin && state.ui.adminUnlocked);
+  }
 };
 
 export const updateProfileCard = () => {

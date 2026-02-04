@@ -19,6 +19,8 @@ import {
   closeSummary,
   getLevel,
   getTrack,
+  setGameSceneActive,
+  updateAdminVisibility,
 } from "./ui.js";
 import { initAuth, bindAuthActions } from "./auth.js";
 import { initSync, setNetworkStatus } from "./sync.js";
@@ -155,12 +157,25 @@ const updateDancer = (grade) => {
   dom.dancer.className = `dancer-silhouette ${choice} ${state.selection.dancer}`;
 };
 
+const keyToDirection = {
+  arrowleft: "left",
+  a: "left",
+  arrowdown: "down",
+  s: "down",
+  arrowup: "up",
+  w: "up",
+  arrowright: "right",
+  d: "right",
+};
+
 const handleKeydown = (event) => {
+  if (state.ui.scene !== "game") return;
   const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName);
   if (isTyping) return;
   const key = event.key.toLowerCase();
-  if (["arrowleft", "arrowright", "arrowup", "arrowdown", "a", "s", "d", "w"].includes(key)) {
-    const grade = handleHit() || "good";
+  const direction = keyToDirection[key];
+  if (direction) {
+    const grade = handleHit(direction) || "good";
     updateDancer(grade);
     event.preventDefault();
   }
@@ -258,6 +273,19 @@ const bindEvents = () => {
     button.addEventListener("click", () => setActivePage(button.dataset.page));
   });
 
+  dom.enterGameButton.addEventListener("click", () => {
+    setGameSceneActive(true);
+    dom.timingFeedback.textContent = "Press Start to begin.";
+  });
+
+  dom.exitGameButton.addEventListener("click", () => {
+    if (state.run.running && !state.run.paused) {
+      pauseRun();
+      setRunStatus("Paused");
+    }
+    setGameSceneActive(false);
+  });
+
   dom.startButton.addEventListener("click", () => {
     if (state.globalConfig.data.maintenanceMode) {
       dom.timingFeedback.textContent = "Maintenance mode: runs disabled.";
@@ -286,8 +314,16 @@ const bindEvents = () => {
     startRun();
     dom.pauseButton.disabled = false;
   });
-  dom.summaryBackLevels.addEventListener("click", () => setActivePage("levels"));
-  dom.summaryViewLeaderboard.addEventListener("click", () => setActivePage("leaderboard"));
+  dom.summaryBackLevels.addEventListener("click", () => {
+    closeSummary();
+    setGameSceneActive(false);
+    setActivePage("levels");
+  });
+  dom.summaryViewLeaderboard.addEventListener("click", () => {
+    closeSummary();
+    setGameSceneActive(false);
+    setActivePage("leaderboard");
+  });
 
   dom.quizStartButton.addEventListener("click", () => {
     quizIndex = 0;
@@ -367,6 +403,7 @@ const init = async () => {
   bindAudioControls();
   initAdminPanel();
   await initAuth();
+  updateAdminVisibility(["admin", "superadmin", "mod"].includes(state.auth.role));
   await initSync();
 
   setNetworkStatus(navigator.onLine ? "Online" : "Offline");
@@ -379,7 +416,13 @@ const init = async () => {
     if (event.key.toLowerCase() === konami[index]) {
       index += 1;
       if (index >= konami.length) {
-        revealAdminNav();
+        if (["admin", "superadmin", "mod"].includes(state.auth.role)) {
+          setState((draft) => {
+            draft.ui.adminUnlocked = true;
+          });
+          updateAdminVisibility(true);
+          revealAdminNav();
+        }
         index = 0;
       }
     } else {
