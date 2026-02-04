@@ -337,6 +337,22 @@ body[data-layout="vertical"] .lane {
   z-index: 5;
 }
 
+.admin-unlock {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.admin-unlock input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #0f1224;
+  color: var(--text);
+}
+
 .game-scene {
   position: fixed;
   inset: 0;

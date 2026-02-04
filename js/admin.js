@@ -3,6 +3,9 @@ import { state, setState } from "./state.js";
 import { dom } from "./dom.js";
 import { publishGlobalConfig } from "./api.js";
 import { broadcastLocalUpdate } from "./sync.js";
+import { updateAdminVisibility } from "./ui.js";
+
+const ADMIN_ACCESS_CODE = "moonwalk";
 
 const log = (status, message, details = "") => {
   const card = document.createElement("div");
@@ -68,6 +71,10 @@ const publishDraft = async () => {
 const handleCommand = (raw) => {
   const command = raw.trim();
   if (!command) return;
+  if (!state.ui.adminUnlocked) {
+    log("⚠️", "Locked", "Unlock admin access before running commands.");
+    return;
+  }
 
   if (command === "help" || command === "commands") {
     log("✅", "Commands", commandList.join("\n"));
@@ -191,6 +198,34 @@ export const initAdminPanel = () => {
     log("✅", "Undo", "Draft change reverted");
   });
   dom.adminPublish.addEventListener("click", publishDraft);
+
+  const lockControls = () => {
+    const locked = !state.ui.adminUnlocked;
+    dom.adminCommand.disabled = locked;
+    dom.adminRun.disabled = locked;
+    dom.adminUndo.disabled = locked;
+    dom.adminPublish.disabled = locked;
+  };
+
+  if (dom.adminUnlockButton) {
+    dom.adminUnlockButton.addEventListener("click", () => {
+      const code = dom.adminUnlockInput.value.trim();
+      if (code === ADMIN_ACCESS_CODE) {
+        setState((draft) => {
+          draft.ui.adminUnlocked = true;
+          draft.auth.role = draft.auth.role === "guest" ? "host" : draft.auth.role;
+        });
+        lockControls();
+        dom.adminGate.classList.add("hidden");
+        updateAdminVisibility(true);
+        log("✅", "Admin unlocked", "Host access enabled.");
+      } else {
+        log("❌", "Unlock failed", "Invalid access code.");
+      }
+    });
+  }
+
+  lockControls();
 
   dom.adminControls.innerHTML = `
     <div class="control-card">

@@ -16,7 +16,7 @@ export const initAuth = async () => {
       "guest";
   });
   updateProfileCard();
-  updateAdminVisibility(["admin", "superadmin", "mod"].includes(state.auth.role));
+  updateAdminVisibility(["admin", "superadmin", "mod", "host"].includes(state.auth.role));
 
   client.auth.onAuthStateChange((_event, session) => {
     setState((draft) => {
@@ -28,7 +28,7 @@ export const initAuth = async () => {
         "guest";
     });
     updateProfileCard();
-    updateAdminVisibility(["admin", "superadmin", "mod"].includes(state.auth.role));
+    updateAdminVisibility(["admin", "superadmin", "mod", "host"].includes(state.auth.role));
   });
 };
 

@@ -69,6 +69,8 @@ export const dom = {
   adminUndo: document.getElementById("adminUndo"),
   adminPublish: document.getElementById("adminPublish"),
   adminGate: document.getElementById("adminGate"),
+  adminUnlockInput: document.getElementById("adminUnlockInput"),
+  adminUnlockButton: document.getElementById("adminUnlockButton"),
   draftCount: document.getElementById("draftCount"),
   publishedVersion: document.getElementById("publishedVersion"),
   summaryModal: document.getElementById("summaryModal"),

@@ -403,7 +403,7 @@ const init = async () => {
   bindAudioControls();
   initAdminPanel();
   await initAuth();
-  updateAdminVisibility(["admin", "superadmin", "mod"].includes(state.auth.role));
+  updateAdminVisibility(["admin", "superadmin", "mod", "host"].includes(state.auth.role));
   await initSync();
 
   setNetworkStatus(navigator.onLine ? "Online" : "Offline");
@@ -416,7 +416,7 @@ const init = async () => {
     if (event.key.toLowerCase() === konami[index]) {
       index += 1;
       if (index >= konami.length) {
-        if (["admin", "superadmin", "mod"].includes(state.auth.role)) {
+        if (["admin", "superadmin", "mod", "host"].includes(state.auth.role)) {
           setState((draft) => {
             draft.ui.adminUnlocked = true;
           });
@@ -427,6 +427,15 @@ const init = async () => {
       }
     } else {
       index = 0;
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "m") {
+      if (state.ui.scene !== "game") {
+        setActivePage("admin");
+      }
+      event.preventDefault();
     }
   });
 
