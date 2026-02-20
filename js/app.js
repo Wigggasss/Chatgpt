@@ -203,6 +203,7 @@ const syncSetupControls = () => {
   dom.setupLaneScaleInput.value = state.selection.laneScale;
   dom.setupFxSelect.value = state.selection.fx;
   dom.setupDancerSelect.value = state.selection.dancer;
+  dom.setupCustomTrackInput.value = state.selection.customTrackQuery || "";
   dom.bindLeft.value = formatKeyLabel(state.selection.keybinds.left);
   dom.bindDown.value = formatKeyLabel(state.selection.keybinds.down);
   dom.bindUp.value = formatKeyLabel(state.selection.keybinds.up);
@@ -223,6 +224,7 @@ const populateSetupOptions = () => {
   dom.setupTrackSelect.innerHTML = tracks
     .map((track) => `<option value="${track.id}">${track.name} (${track.bpm} BPM)</option>`)
     .join("");
+  dom.setupTrackSelect.insertAdjacentHTML("beforeend", `<option value="custom">Custom Song (AcroMusic)</option>`);
   dom.setupLevelSelect.innerHTML = levels
     .map((level) => `<option value="${level.id}">Lv ${level.id} · ${level.name}</option>`)
     .join("");
@@ -331,7 +333,7 @@ const bindEvents = () => {
   dom.enterGameButton.addEventListener("click", () => {
     setGameSceneActive(true);
     toggleSetupOverlay(true);
-    dom.timingFeedback.textContent = "Start from setup to begin.";
+    dom.timingFeedback.textContent = "Choose a track in setup, then start.";
   });
 
   dom.exitGameButton.addEventListener("click", () => {
@@ -431,6 +433,18 @@ const bindEvents = () => {
   dom.setupLaneScaleInput.addEventListener("input", () => applySelection("laneScale", Number(dom.setupLaneScaleInput.value)));
   dom.setupFxSelect.addEventListener("change", () => applySelection("fx", dom.setupFxSelect.value));
   dom.setupDancerSelect.addEventListener("change", () => applySelection("dancer", dom.setupDancerSelect.value));
+
+  dom.setupCustomTrackButton.addEventListener("click", () => {
+    const query = dom.setupCustomTrackInput.value.trim();
+    if (!query) return;
+    setState((draft) => {
+      draft.selection.trackId = "custom";
+      draft.selection.customTrackQuery = query;
+      draft.selection.customTrackBpm = Math.max(70, Math.min(190, 80 + Math.floor(query.length * 2)));
+    });
+    syncSelection();
+    persistSettings();
+  });
 
   const bindFields = [
     [dom.bindLeft, "left"],

@@ -1,6 +1,6 @@
 # Moonwalk Mania
 
-A Michael Jackson–only browser rhythm game with Fortnite-style UI, global sync, and legal music embeds.
+A browser rhythm game with Fortnite-style UI, global sync, customizable controls, and AcroMusic-powered song playback.
 
 Website: https://wigggasss.github.io/Chatgpt/
 
@@ -23,6 +23,12 @@ Website: https://wigggasss.github.io/Chatgpt/
 3. In GitHub, go to **Settings → Pages**.
 4. Set **Source** to `Deploy from a branch` and choose `main / root`.
 5. Save. The site will publish at the URL above.
+
+## Song Playback (AcroMusic API)
+
+- Track playback uses `https://acromusic.pages.dev` API endpoints.
+- Default tracks are presets, and Game Setup also supports **Custom Song** search queries.
+- The game attempts multiple AcroMusic audio endpoints for compatibility (`/api/preview`, `/api/play`, `/api/stream`).
 
 ## Supabase Auth + Sync
 

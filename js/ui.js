@@ -55,7 +55,7 @@ export const renderTracks = () => {
     card.innerHTML = `
       <div>
         <h3>${track.name}</h3>
-        <p class="hint">${track.bpm} BPM · Official preview</p>
+        <p class="hint">${track.bpm} BPM · ${track.instrument || "Mixed Instruments"}</p>
       </div>
       <button class="ghost" data-track="${track.id}">Select</button>
     `;
@@ -177,19 +177,23 @@ export const updateSettingsForm = () => {
 
 export const renderTrackEmbed = (autoplay = false) => {
   const track = getTrack();
-  const autoplayParam = autoplay ? "?autoplay=1" : "";
-  const frame = `
-    <iframe
-      src="${track.embedUrl}${autoplayParam}"
-      title="${track.name}"
-      frameborder="0"
-      allow="autoplay; encrypted-media"
-      allowfullscreen
-    ></iframe>
+  const query = encodeURIComponent(track.apiQuery || track.name);
+  const base = "https://acromusic.pages.dev";
+  const sources = [
+    `${base}/api/preview?track=${query}`,
+    `${base}/api/play?track=${query}`,
+    `${base}/api/stream?track=${query}`,
+  ];
+  const audio = `
+    <audio controls ${autoplay ? "autoplay" : ""} ${state.selection.muted ? "muted" : ""} preload="none">
+      ${sources.map((src) => `<source src="${src}" type="audio/mpeg">`).join("")}
+      Your browser does not support audio playback.
+    </audio>
+    <p class="hint">Source: AcroMusic API · ${track.instrument || "Mixed"}</p>
   `;
-  dom.trackEmbed.innerHTML = frame;
+  dom.trackEmbed.innerHTML = audio;
   if (dom.gameTrackEmbed) {
-    dom.gameTrackEmbed.innerHTML = frame;
+    dom.gameTrackEmbed.innerHTML = audio;
   }
 };
 
@@ -220,4 +224,15 @@ export const closeSummary = () => {
 };
 
 export const getLevel = () => levels.find((item) => item.id === state.selection.levelId) || levels[0];
-export const getTrack = () => tracks.find((item) => item.id === state.selection.trackId) || tracks[0];
+export const getTrack = () => {
+  if (state.selection.trackId === "custom" && state.selection.customTrackQuery?.trim()) {
+    return {
+      id: `custom-${state.selection.customTrackQuery.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      name: state.selection.customTrackQuery.trim(),
+      bpm: Number(state.selection.customTrackBpm) || 120,
+      instrument: "Dynamic Mix",
+      apiQuery: state.selection.customTrackQuery.trim(),
+    };
+  }
+  return tracks.find((item) => item.id === state.selection.trackId) || tracks[0];
+};

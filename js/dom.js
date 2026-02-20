@@ -12,6 +12,8 @@ export const dom = {
   setupOverlay: document.getElementById("setupOverlay"),
   setupRunHint: document.getElementById("setupRunHint"),
   setupTrackSelect: document.getElementById("setupTrackSelect"),
+  setupCustomTrackInput: document.getElementById("setupCustomTrackInput"),
+  setupCustomTrackButton: document.getElementById("setupCustomTrackButton"),
   setupLevelSelect: document.getElementById("setupLevelSelect"),
   setupLayoutSelect: document.getElementById("setupLayoutSelect"),
   setupThemeSelect: document.getElementById("setupThemeSelect"),

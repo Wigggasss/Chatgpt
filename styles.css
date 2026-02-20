@@ -390,6 +390,10 @@ body[data-layout="vertical"] .lane {
   gap: 12px;
 }
 
+.setup-custom-track {
+  align-self: end;
+}
+
 .setup-grid label,
 .setup-player-mode {
   display: grid;
@@ -580,6 +584,10 @@ body.game-mode .app-shell {
   width: 100%;
   height: 180px;
   border-radius: 12px;
+}
+
+.track-embed audio {
+  width: 100%;
 }
 
 .game-track-embed iframe {

@@ -187,7 +187,7 @@
             <div class="page-header">
               <div>
                 <h1>Tracks</h1>
-                <p class="subtitle">MJ-only official previews.</p>
+                <p class="subtitle">Any song mode with API-powered previews.</p>
               </div>
             </div>
             <div class="panel" id="tracksPanel"></div>
@@ -399,9 +399,14 @@
           </div>
           <div class="setup-grid">
             <label>
-              Track (MJ-only)
+              Track
               <select id="setupTrackSelect"></select>
             </label>
+            <label>
+              Any Song Search
+              <input type="text" id="setupCustomTrackInput" placeholder="Type any song name" />
+            </label>
+            <button class="ghost setup-custom-track" id="setupCustomTrackButton" type="button">Use Custom Song</button>
             <label>
               Level
               <select id="setupLevelSelect"></select>
