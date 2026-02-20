@@ -55,18 +55,18 @@ const spawnNote = (now, direction) => {
   note.dataset.direction = direction;
   note.textContent = directionSymbols[direction];
   note.style.top = `${directionRows[direction]}%`;
-  note.style.left = `${dom.lane.clientWidth}px`;
   
-  // Add slight horizontal variation to spawn position (± 20% of lane width) for visual variety
   const laneWidth = dom.lane.clientWidth;
-  const randomOffset = (Math.random() - 0.5) * laneWidth * 0.4;
+  // Randomize horizontal spawn position across full lane width to prevent stacking
+  const randomX = Math.random() * laneWidth;
+  note.style.left = `${randomX}px`;
   
   // scale note slightly with level speed to aid visibility at high speeds
   const level = getLevel();
   const baseSpeed = 300;
   const extra = Math.max(0, (level.speedPxPerSec - baseSpeed) / 600);
   const scale = Math.min(1.5, 1 + extra + 0.1);
-  note.style.transform = `translate(calc(-50% + ${randomOffset}px), -50%) scale(${scale})`;
+  note.style.transform = `translate(-50%, -50%) scale(${scale})`;
   dom.lane.appendChild(note);
   notes.push({
     id: now,
