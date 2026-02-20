@@ -4,6 +4,7 @@ import { dom } from "./dom.js";
 import { publishGlobalConfig } from "./api.js";
 import { broadcastLocalUpdate } from "./sync.js";
 import { updateAdminVisibility } from "./ui.js";
+import { executeCommand } from "./adminCommands.js";
 
 const ADMIN_ACCESS_CODE = "moonwalk";
 
@@ -80,6 +81,15 @@ const handleCommand = (raw) => {
   if (!state.ui.adminUnlocked) {
     log("⚠️", "Locked", "Unlock admin access before running commands.");
     return;
+  }
+
+  // Support new /category subcommand format
+  if (command.startsWith("/")) {
+    const result = executeCommand(command);
+    if (result) {
+      log("✅", "Command", result);
+      return;
+    }
   }
 
   if (command === "help" || command === "commands") {
