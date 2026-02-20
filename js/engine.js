@@ -105,7 +105,8 @@ const updateNotes = (now, dt) => {
 export const handleHit = (direction) => {
   if (!state.run.running || state.run.paused) return;
   const now = performance.now();
-  if (now - lastInputAt < 45) return;
+  // Reduce debounce to 15ms to allow proper single taps in rhythm games
+  if (now - lastInputAt < 15) return;
   lastInputAt = now;
 
   if (!notes.length) {
