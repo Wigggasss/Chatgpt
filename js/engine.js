@@ -56,6 +56,12 @@ const spawnNote = (now, direction) => {
   note.textContent = directionSymbols[direction];
   note.style.top = `${directionRows[direction]}%`;
   note.style.left = `${dom.lane.clientWidth}px`;
+  // scale note slightly with level speed to aid visibility at high speeds
+  const level = getLevel();
+  const baseSpeed = 300;
+  const extra = Math.max(0, (level.speedPxPerSec - baseSpeed) / 600);
+  const scale = Math.min(1.35, 1 + extra);
+  note.style.transform = `translate(-50%, -50%) scale(${scale})`;
   dom.lane.appendChild(note);
   notes.push({
     id: now,
@@ -142,6 +148,8 @@ export const handleHit = (direction) => {
   registerMiss();
   return "miss";
 };
+
+export const peekNextNote = () => (notes.length ? notes[0].direction : null);
 
 const registerHit = (grade) => {
   state.run.hits += 1;

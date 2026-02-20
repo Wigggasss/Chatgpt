@@ -492,6 +492,31 @@ body.game-mode .app-shell {
   text-align: center;
 }
 
+.upcoming {
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.upcoming .upcoming-pill {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+  color: #07101a;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+/* stronger note glow for clarity */
+.note {
+  transition: box-shadow 80ms ease, transform 80ms ease;
+  box-shadow: 0 0 18px rgba(139,92,246,0.7), 0 6px 18px rgba(0,0,0,0.35);
+}
+
 .game-status {
   display: flex;
   align-items: center;

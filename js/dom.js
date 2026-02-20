@@ -10,6 +10,7 @@ export const dom = {
   gameStatusMeta: document.getElementById("gameStatusMeta"),
   gameScene: document.getElementById("gameScene"),
   keyHud: document.getElementById("keyHud"),
+  upcomingNote: document.getElementById("upcomingNote"),
   setupOverlay: document.getElementById("setupOverlay"),
   setupRunHint: document.getElementById("setupRunHint"),
   setupTrackSelect: document.getElementById("setupTrackSelect"),

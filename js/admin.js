@@ -10,11 +10,17 @@ const ADMIN_ACCESS_CODE = "moonwalk";
 const log = (status, message, details = "") => {
   const card = document.createElement("div");
   card.className = "log-card";
+  const ts = new Date().toLocaleTimeString();
   card.innerHTML = `
-    <div class="log-title">${status} ${message}</div>
+    <div class="log-title">${status} ${message} <span class="log-ts">${ts}</span></div>
     ${details ? `<details><summary>details</summary><pre>${details}</pre></details>` : ""}
   `;
   dom.adminLog.prepend(card);
+  // keep newest visible
+  if (dom.adminLog.children.length > 200) {
+    const last = dom.adminLog.children[dom.adminLog.children.length - 1];
+    last.remove();
+  }
 };
 
 const updateDraftCount = () => {
@@ -118,6 +124,10 @@ const handleCommand = (raw) => {
     return;
   }
   if (command === "config publish") {
+    if (!confirm("Publish draft to global config? This will apply changes to all users.")) {
+      log("⚠️", "Publish cancelled", "User cancelled publish.");
+      return;
+    }
     publishDraft();
     return;
   }
@@ -184,11 +194,44 @@ const handleCommand = (raw) => {
   log("⚠️", "Unknown command", command);
 };
 
+// command history for convenience
+const commandHistory = [];
+let historyIndex = -1;
+
 export const initAdminPanel = () => {
   updateDraftCount();
   dom.adminRun.addEventListener("click", () => handleCommand(dom.adminCommand.value));
   dom.adminCommand.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") handleCommand(dom.adminCommand.value);
+    if (event.key === "Enter") {
+      handleCommand(dom.adminCommand.value);
+      // record history and clear
+      if (dom.adminCommand.value.trim()) {
+        commandHistory.unshift(dom.adminCommand.value.trim());
+        historyIndex = -1;
+      }
+      dom.adminCommand.value = "";
+      event.preventDefault();
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (commandHistory.length === 0) return;
+      historyIndex = Math.min(commandHistory.length - 1, (historyIndex === -1 ? 0 : historyIndex + 1));
+      dom.adminCommand.value = commandHistory[historyIndex];
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (commandHistory.length === 0) return;
+      if (historyIndex <= 0) {
+        historyIndex = -1;
+        dom.adminCommand.value = "";
+        return;
+      }
+      historyIndex -= 1;
+      dom.adminCommand.value = commandHistory[historyIndex];
+      return;
+    }
   });
   dom.adminClear.addEventListener("click", () => {
     dom.adminLog.innerHTML = "";

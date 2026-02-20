@@ -25,7 +25,7 @@ import {
 import { initAuth, bindAuthActions } from "./auth.js";
 import { initSync, setNetworkStatus } from "./sync.js";
 import { fetchLeaderboard, submitScore, saveProfile } from "./api.js";
-import { startRun, pauseRun, resetRun, handleHit, endRun, setRunEndCallback } from "./engine.js";
+import { startRun, pauseRun, resetRun, handleHit, endRun, setRunEndCallback, peekNextNote } from "./engine.js";
 import { initAdminPanel, revealAdminNav } from "./admin.js";
 import { updateAudioEmbed, bindAudioControls } from "./audio.js";
 
@@ -541,6 +541,29 @@ const updateKeyHud = () => {
       return `<span class="key-pill">${formatKeyLabel(k)}</span>`;
     });
     dom.keyHud.innerHTML = labels.join(" ");
+  } catch (e) {
+    // ignore
+  }
+};
+
+const dirSymbols = { left: "←", right: "→", up: "↑", down: "↓" };
+
+const updateUpcomingHud = () => {
+  try {
+    if (!dom.upcomingNote) return;
+    if (state.ui.scene !== "game") {
+      dom.upcomingNote.classList.add("hidden");
+      dom.upcomingNote.innerHTML = "";
+      return;
+    }
+    const next = peekNextNote();
+    if (!next) {
+      dom.upcomingNote.innerHTML = "";
+      dom.upcomingNote.classList.add("hidden");
+      return;
+    }
+    dom.upcomingNote.classList.remove("hidden");
+    dom.upcomingNote.innerHTML = `<span class="upcoming-pill">${dirSymbols[next] || next}</span>`;
   } catch (e) {
     // ignore
   }
