@@ -254,6 +254,44 @@ button:disabled {
   margin-bottom: 18px;
 }
 
+/* Keybind icon strip in tutorial */
+.keybind-icons {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+.keybind-icons .icon {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));
+  color: var(--accent-2);
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(59,130,246,0.06);
+}
+
+/* Controls grid inputs as blue boxes */
+.controls-grid input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(59,130,246,0.14);
+  background: linear-gradient(180deg, rgba(10,12,25,0.6), rgba(10,12,25,0.4));
+  color: var(--text);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Visual state while capturing a bind */
+.controls-grid input.capturing {
+  border-color: rgba(59,130,246,0.9);
+  box-shadow: 0 8px 26px rgba(59,130,246,0.12);
+  background: linear-gradient(180deg, rgba(59,130,246,0.06), rgba(59,130,246,0.02));
+  color: var(--accent-2);
+}
+
 body[data-layout="vertical"] .play-grid {
   grid-template-columns: 1fr;
 }

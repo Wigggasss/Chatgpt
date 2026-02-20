@@ -69,6 +69,14 @@ export const renderLeaderboardLevels = () => {
   option.value = "all";
   option.textContent = "Global Top 50";
   dom.leaderboardLevelSelect.appendChild(option);
+  // add per-level options
+  levels.forEach((level) => {
+    const opt = document.createElement("option");
+    opt.value = String(level.id);
+    opt.textContent = `Level ${level.id} · ${level.name}`;
+    dom.leaderboardLevelSelect.appendChild(opt);
+  });
+  dom.leaderboardLevelSelect.disabled = false;
 };
 
 export const renderLeaderboard = (entries) => {

@@ -263,7 +263,7 @@ export const resetRun = () => {
   resetLock = true;
   setTimeout(() => {
     resetLock = false;
-  }, 150);
+  }, 300);
 
   if (state.run.rafId) {
     cancelAnimationFrame(state.run.rafId);

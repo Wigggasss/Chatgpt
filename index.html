@@ -112,11 +112,20 @@
                 <h2>Quick Tutorial</h2>
                 <span class="hint">Start here</span>
               </div>
-              <ul class="bullet-list">
-                <li>Enter the Game Scene to play.</li>
-                <li>Hit the next note on the line with arrows or WASD.</li>
-                <li>Wrong direction breaks streak—timing matters.</li>
-              </ul>
+              <div class="tutorial-body">
+                <p class="hint">New here? Run the quick tutorial to learn controls and try a short round.</p>
+                <div class="keybind-icons">
+                  <span class="icon">←</span>
+                  <span class="icon">↓</span>
+                  <span class="icon">↑</span>
+                  <span class="icon">→</span>
+                  <span class="icon">W</span>
+                  <span class="icon">A</span>
+                  <span class="icon">S</span>
+                  <span class="icon">D</span>
+                </div>
+                <button class="primary" id="startTutorialButton">Start Tutorial</button>
+              </div>
             </div>
 
             <div class="play-grid">
@@ -131,17 +140,7 @@
                   <span id="levelLabel">Club Intro</span>
                 </div>
               </div>
-              <div class="panel">
-                <div class="panel-header">
-                  <h2>Focus Rules</h2>
-                  <span class="hint">No spam, no clutter</span>
-                </div>
-                <ul class="bullet-list">
-                  <li>Only the next note can be hit.</li>
-                  <li>Wrong key = miss and streak break.</li>
-                  <li>Use Reset between level/track changes.</li>
-                </ul>
-              </div>
+              <!-- Focus rules removed in favor of tutorial onboarding -->
             </div>
           </section>
 
