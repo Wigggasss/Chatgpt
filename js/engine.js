@@ -166,6 +166,13 @@ const registerHit = (grade) => {
   }
   const multiplier = 1 + Math.floor(state.run.streak / 8) * 0.2;
   state.run.score += Math.round(points * multiplier);
+  // Visual lane feedback for hits
+  try {
+    dom.lane.classList.add(`grade-${grade}`);
+    setTimeout(() => dom.lane.classList.remove(`grade-${grade}`), 160);
+  } catch (e) {
+    // ignore DOM errors in non-browser environments
+  }
 };
 
 const registerMiss = () => {
@@ -173,6 +180,13 @@ const registerMiss = () => {
   state.run.missCount += 1;
   state.run.streak = 0;
   dom.timingFeedback.textContent = "Miss";
+  // Visual feedback for miss
+  try {
+    dom.lane.classList.add("grade-miss");
+    setTimeout(() => dom.lane.classList.remove("grade-miss"), 200);
+  } catch (e) {
+    // ignore
+  }
 };
 
 export const startRun = () => {
