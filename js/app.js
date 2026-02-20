@@ -734,8 +734,11 @@ const init = async () => {
   document.addEventListener("keydown", (event) => {
     // require Ctrl+Alt+Shift+M to reduce browser hotkey conflicts (Opera/GX)
     if (event.ctrlKey && event.shiftKey && event.altKey && event.key.toLowerCase() === "m") {
-      if (state.ui.scene !== "game") {
-        setActivePage("admin");
+      if (dom.adminConsole) {
+        dom.adminConsole.classList.toggle("hidden");
+        if (!dom.adminConsole.classList.contains("hidden")) {
+          dom.consoleInput?.focus();
+        }
       }
       event.preventDefault();
     }
