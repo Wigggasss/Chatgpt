@@ -96,6 +96,8 @@ let quizIndex = 0;
 let quizScore = 0;
 let quizStreak = 0;
 
+const pressedKeys = new Set();
+
 const updateQuizUI = () => {
   dom.quizScore.textContent = quizScore;
   dom.quizStreak.textContent = quizStreak;
@@ -180,17 +182,33 @@ const handleKeydown = (event) => {
   if (state.ui.scene !== "game") return;
   const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName);
   if (isTyping) return;
-  const key = event.key.toLowerCase();
+
+  const rawKey = event.key;
+  const key = rawKey.toLowerCase();
+
+  // Prevent page scrolling / default browser navigation while in-game for common keys
+  const scrollKeys = ["arrowleft", "arrowright", "arrowup", "arrowdown", " ", "pageup", "pagedown", "home", "end"];
+  if (scrollKeys.includes(key)) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  // Ignore auto-repeat and held keys to prevent spamming exploits
+  if (event.repeat) return;
+  if (pressedKeys.has(key)) return;
+  pressedKeys.add(key);
+
   const direction = resolveDirectionFromKey(key);
   if (direction) {
     const grade = handleHit(direction) || "good";
     updateDancer(grade);
-    event.preventDefault();
+    return;
   }
+
   if (key === " ") {
     pauseRun();
     setRunStatus(state.run.paused ? "Paused" : "Running");
-    event.preventDefault();
+    return;
   }
 };
 
@@ -493,6 +511,11 @@ const bindEvents = () => {
   });
 
   document.addEventListener("keydown", handleKeydown);
+
+  document.addEventListener("keyup", (event) => {
+    const key = event.key.toLowerCase();
+    if (pressedKeys.has(key)) pressedKeys.delete(key);
+  });
 
   dom.profileLoginButton.addEventListener("click", () => setActivePage("profile"));
 };
