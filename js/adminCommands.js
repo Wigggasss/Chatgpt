@@ -41,7 +41,7 @@ const handlers = {
         hud: "show, hide, scale, compact, reset, theme, refresh",
         dancer: "on, off, mode, move, reset, speed, effects",
         timer: "start, pause, resume, reset, set, add, status, freeze",
-        admin: "lock, unlock, status, role, config",
+        admin: "lock, unlock, status, role, config, password",
         debug: "fps, notes, input, timing, hitwindow, memory, state, reset, log, clear",
       };
       return categories[subcommand] ? `${subcommand}: ${categories[subcommand]}` : "Category not found";
@@ -136,6 +136,23 @@ const handlers = {
     show: () => (dom.gameHud.style.display = "flex", "HUD shown"),
     hide: () => (dom.gameHud.style.display = "none", "HUD hidden"),
     reset: () => (dom.gameHud.style.display = "flex", "HUD reset"),
+  },
+
+  admin: {
+    lock: () => (setState((draft) => { draft.ui.adminUnlocked = false; }), "Admin locked"),
+    unlock: () => (setState((draft) => { draft.ui.adminUnlocked = true; }), "Admin unlocked"),
+    status: () => `Admin: ${state.ui.adminUnlocked ? "unlocked" : "locked"}`,
+    role: () => `Role: ${state.auth.role}`,
+    config: () => JSON.stringify(state.globalConfig.data, null, 2),
+    password: (args) => {
+      if (args.length < 2) return "Usage: /admin password set <newpassword>";
+      if (args[0].toLowerCase() !== "set") return "Usage: /admin password set <newpassword>";
+      const newPassword = args.slice(1).join(" ");
+      setState((draft) => {
+        draft.auth.adminPassword = newPassword;
+      });
+      return `Password changed to: ${newPassword}`;
+    },
   },
 
   debug: {

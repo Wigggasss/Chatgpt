@@ -6,8 +6,6 @@ import { broadcastLocalUpdate } from "./sync.js";
 import { updateAdminVisibility } from "./ui.js";
 import { executeCommand } from "./adminCommands.js";
 
-const ADMIN_ACCESS_CODE = "moonwalk";
-
 const log = (status, message, details = "") => {
   const card = document.createElement("div");
   card.className = "log-card";
@@ -263,7 +261,7 @@ export const initAdminPanel = () => {
   if (dom.adminUnlockButton) {
     dom.adminUnlockButton.addEventListener("click", () => {
       const code = dom.adminUnlockInput.value.trim();
-      if (code === ADMIN_ACCESS_CODE) {
+      if (code === state.auth.adminPassword) {
         setState((draft) => {
           draft.ui.adminUnlocked = true;
           draft.auth.role = draft.auth.role === "guest" ? "host" : draft.auth.role;

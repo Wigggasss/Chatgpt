@@ -183,8 +183,6 @@ const resolveDirectionFromKey = (key) => {
 
 const handleKeydown = (event) => {
   if (state.ui.scene !== "game") return;
-  const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName);
-  if (isTyping) return;
 
   const rawKey = event.key;
   const key = rawKey.toLowerCase();
@@ -195,6 +193,11 @@ const handleKeydown = (event) => {
     event.preventDefault();
     event.stopPropagation();
   }
+
+  // Don't process game input if user is typing in a regular input (but allow game keys when console is focused)
+  const isConsoleInput = event.target.id === "consoleInput";
+  const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName) && !isConsoleInput;
+  if (isTyping) return;
 
   // Ignore auto-repeat and held keys to prevent spamming exploits
   if (event.repeat) return;

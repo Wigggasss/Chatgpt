@@ -57,6 +57,7 @@ export const state = {
     user: null,
     status: "guest",
     role: "guest",
+    adminPassword: "moonwalk",
   },
   profile: {
     displayName: "Guest Dancer",
