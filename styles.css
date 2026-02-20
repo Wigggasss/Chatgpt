@@ -326,6 +326,31 @@ body[data-layout="vertical"] .lane {
   border-radius: 14px;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 60%), #101025;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Vertical and horizontal lane separators */
+.lane::before,
+.lane::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lane::before {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.lane::after {
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Visual feedback for hit grades and misses */
@@ -376,13 +401,9 @@ body[data-layout="vertical"] .lane {
   border: 2px solid rgba(0,0,0,0.12);
   text-shadow: 0 1px 0 rgba(255,255,255,0.08);
 }
-.note.size-small { width: 34px; height: 34px; font-size: 1rem; }
-.note.size-medium { width: 44px; height: 44px; font-size: 1.2rem; }
-.note.size-large { width: 56px; height: 56px; font-size: 1.4rem; }
-
-.note.size-small { width: 30px; height: 30px; font-size: 1rem; }
-.note.size-medium { width: 40px; height: 40px; font-size: 1.2rem; }
-.note.size-large { width: 52px; height: 52px; font-size: 1.4rem; }
+.note.size-small { width: 40px; height: 40px; font-size: 1.1rem; }
+.note.size-medium { width: 50px; height: 50px; font-size: 1.3rem; }
+.note.size-large { width: 64px; height: 64px; font-size: 1.6rem; }
 
 .timing-feedback {
   margin-top: 12px;
@@ -531,13 +552,7 @@ body.game-mode .app-shell {
 }
 
 .upcoming {
-  margin-left: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.18);
+  display: none;
   border: 1px solid rgba(255,255,255,0.03);
 }
 .upcoming .upcoming-pill {
@@ -584,6 +599,17 @@ body.game-mode .app-shell {
   display: grid;
   align-content: start;
   gap: 12px;
+}
+
+/* Support vertical layout in game scene */
+body[data-layout="vertical"] .game-body {
+  grid-template-columns: 1fr;
+}
+
+body[data-layout="vertical"] .game-scene .lane {
+  width: 160px;
+  height: 600px;
+  margin: 0 auto;
 }
 
 .game-scene .lane {
