@@ -177,7 +177,6 @@ const registerMiss = () => {
 
 export const startRun = () => {
   if (state.run.running) return;
-  if (resetLock) return;
   if (state.run.rafId) {
     cancelAnimationFrame(state.run.rafId);
     state.run.rafId = null;
