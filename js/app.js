@@ -206,6 +206,8 @@ const handleKeydown = (event) => {
   if (direction) {
     const grade = handleHit(direction) || "good";
     updateDancer(grade);
+    updateHUD();
+    updateUpcomingHud();
     return;
   }
 
@@ -630,6 +632,9 @@ const bindEvents = () => {
     updateKeyHud();
   });
 
+  dom.profileLoginButton.addEventListener("click", () => setActivePage("profile"));
+};
+
 const updateKeyHud = () => {
   try {
     if (!dom.keyHud) return;
@@ -650,7 +655,7 @@ const updateKeyHud = () => {
 
 const dirSymbols = { left: "←", right: "→", up: "↑", down: "↓" };
 
-const updateUpcomingHud = () => {
+export const updateUpcomingHud = () => {
   try {
     if (!dom.upcomingNote) return;
     if (state.ui.scene !== "game") {
@@ -669,9 +674,6 @@ const updateUpcomingHud = () => {
   } catch (e) {
     // ignore
   }
-};
-
-  dom.profileLoginButton.addEventListener("click", () => setActivePage("profile"));
 };
 
 const init = async () => {

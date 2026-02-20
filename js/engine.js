@@ -1,6 +1,6 @@
 import { trackProfiles } from "./config.js";
 import { state, setState } from "./state.js";
-import { getLevel, getTrack } from "./ui.js";
+import { getLevel, getTrack, updateHUD } from "./ui.js";
 import { dom } from "./dom.js";
 
 const notes = [];
@@ -238,6 +238,7 @@ export const startRun = () => {
         state.run.lastSpawnAt = now;
       }
       updateNotes(now, dt);
+      updateHUD();
       if (state.run.timeLeft <= 0) {
         endRun();
         return;
