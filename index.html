@@ -374,6 +374,70 @@
     </div>
 
     <div class="game-scene hidden" id="gameScene">
+      <div class="setup-overlay" id="setupOverlay">
+        <div class="setup-card">
+          <div class="panel-header">
+            <h2>Game Setup</h2>
+            <span class="hint" id="setupRunHint">Choose settings before starting.</span>
+          </div>
+          <div class="setup-grid">
+            <label>
+              Track (MJ-only)
+              <select id="setupTrackSelect"></select>
+            </label>
+            <label>
+              Level
+              <select id="setupLevelSelect"></select>
+            </label>
+            <label>
+              Orientation
+              <select id="setupLayoutSelect">
+                <option value="horizontal">Horizontal</option>
+                <option value="vertical">Vertical</option>
+              </select>
+            </label>
+            <label>
+              Theme
+              <select id="setupThemeSelect"></select>
+            </label>
+            <label>
+              Note Size
+              <select id="setupNoteSizeSelect">
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+              </select>
+            </label>
+            <label>
+              Lane Scale
+              <input type="range" id="setupLaneScaleInput" min="0.9" max="1.2" step="0.05" />
+            </label>
+            <label>
+              FX Intensity
+              <select id="setupFxSelect">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+            <label>
+              Dancer
+              <select id="setupDancerSelect">
+                <option value="off">Off</option>
+                <option value="low">Low</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+          </div>
+          <div class="setup-player-mode">
+            <button class="ghost" id="setupLoginButton">Sign Up / Log In</button>
+            <button class="ghost" id="setupGuestButton">Play as Guest</button>
+          </div>
+          <div class="setup-actions">
+            <button class="primary" id="startButton">Start Run</button>
+          </div>
+        </div>
+      </div>
       <div class="game-topbar">
         <button class="ghost" id="exitGameButton">Exit to Menu</button>
         <div class="game-status">
@@ -435,7 +499,6 @@
         </div>
       </div>
       <div class="game-controls">
-        <button class="primary" id="startButton">Start Game</button>
         <button class="ghost" id="pauseButton" disabled>Pause</button>
         <button class="ghost" id="resetButton">Reset</button>
       </div>

@@ -99,7 +99,7 @@ const updateNotes = (now, dt) => {
 export const handleHit = (direction) => {
   if (!state.run.running || state.run.paused) return;
   const now = performance.now();
-  if (now - lastInputAt < 90) return;
+  if (now - lastInputAt < 45) return;
   lastInputAt = now;
 
   if (!notes.length) {

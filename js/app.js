@@ -186,21 +186,55 @@ const handleKeydown = (event) => {
   }
 };
 
+const syncSetupControls = () => {
+  dom.setupTrackSelect.value = state.selection.trackId;
+  dom.setupLevelSelect.value = String(state.selection.levelId);
+  dom.setupLayoutSelect.value = state.selection.layout;
+  dom.setupThemeSelect.value = state.selection.themeId;
+  dom.setupNoteSizeSelect.value = state.selection.noteSize;
+  dom.setupLaneScaleInput.value = state.selection.laneScale;
+  dom.setupFxSelect.value = state.selection.fx;
+  dom.setupDancerSelect.value = state.selection.dancer;
+};
+
 const syncSelection = () => {
   updateHUD();
   updateSettingsForm();
+  syncSetupControls();
   applyTheme(state.selection.themeId);
   renderTrackEmbed(state.selection.autoplay && !state.selection.muted);
   dom.lane.style.transform = `scaleX(${state.selection.laneScale})`;
   document.body.dataset.layout = state.selection.layout;
 };
 
+const populateSetupOptions = () => {
+  dom.setupTrackSelect.innerHTML = tracks
+    .map((track) => `<option value="${track.id}">${track.name} (${track.bpm} BPM)</option>`)
+    .join("");
+  dom.setupLevelSelect.innerHTML = levels
+    .map((level) => `<option value="${level.id}">Lv ${level.id} · ${level.name}</option>`)
+    .join("");
+  dom.setupThemeSelect.innerHTML = themes
+    .map((theme) => `<option value="${theme.id}">${theme.name}</option>`)
+    .join("");
+  syncSetupControls();
+};
+
+const toggleSetupOverlay = (visible) => {
+  dom.setupOverlay.classList.toggle("hidden", !visible);
+  dom.gameScene.classList.toggle("running", !visible);
+  dom.setupRunHint.textContent = state.run.running
+    ? "Reset to change settings."
+    : "Choose settings before starting.";
+};
+
 const applySelection = (key, value) => {
   if (state.run.running) {
-    dom.settingsHint.textContent = "Reset to apply changes while running.";
-  } else {
-    dom.settingsHint.textContent = "";
+    dom.settingsHint.textContent = "Reset to change settings while running.";
+    dom.setupRunHint.textContent = "Reset to change settings.";
+    return;
   }
+  dom.settingsHint.textContent = "";
   setState((draft) => {
     draft.selection[key] = value;
   });
@@ -275,7 +309,8 @@ const bindEvents = () => {
 
   dom.enterGameButton.addEventListener("click", () => {
     setGameSceneActive(true);
-    dom.timingFeedback.textContent = "Press Start to begin.";
+    toggleSetupOverlay(true);
+    dom.timingFeedback.textContent = "Start from setup to begin.";
   });
 
   dom.exitGameButton.addEventListener("click", () => {
@@ -291,6 +326,7 @@ const bindEvents = () => {
       dom.timingFeedback.textContent = "Maintenance mode: runs disabled.";
       return;
     }
+    toggleSetupOverlay(false);
     startRun();
     setRunStatus("Running");
     dom.pauseButton.disabled = false;
@@ -303,6 +339,7 @@ const bindEvents = () => {
 
   dom.resetButton.addEventListener("click", () => {
     resetRun();
+    toggleSetupOverlay(true);
     setRunStatus("Ready");
     dom.pauseButton.disabled = true;
   });
@@ -311,8 +348,8 @@ const bindEvents = () => {
   dom.summaryPlayAgain.addEventListener("click", () => {
     closeSummary();
     resetRun();
-    startRun();
-    dom.pauseButton.disabled = false;
+    toggleSetupOverlay(true);
+    dom.pauseButton.disabled = true;
   });
   dom.summaryBackLevels.addEventListener("click", () => {
     closeSummary();
@@ -363,6 +400,30 @@ const bindEvents = () => {
   dom.fxSelect.addEventListener("change", () => applySelection("fx", dom.fxSelect.value));
   dom.dancerSelect.addEventListener("change", () => applySelection("dancer", dom.dancerSelect.value));
 
+
+  dom.setupTrackSelect.addEventListener("change", () => applySelection("trackId", dom.setupTrackSelect.value));
+  dom.setupLevelSelect.addEventListener("change", () => applySelection("levelId", Number(dom.setupLevelSelect.value)));
+  dom.setupLayoutSelect.addEventListener("change", () => applySelection("layout", dom.setupLayoutSelect.value));
+  dom.setupThemeSelect.addEventListener("change", () => applySelection("themeId", dom.setupThemeSelect.value));
+  dom.setupNoteSizeSelect.addEventListener("change", () => applySelection("noteSize", dom.setupNoteSizeSelect.value));
+  dom.setupLaneScaleInput.addEventListener("input", () => applySelection("laneScale", Number(dom.setupLaneScaleInput.value)));
+  dom.setupFxSelect.addEventListener("change", () => applySelection("fx", dom.setupFxSelect.value));
+  dom.setupDancerSelect.addEventListener("change", () => applySelection("dancer", dom.setupDancerSelect.value));
+
+  dom.setupLoginButton.addEventListener("click", () => {
+    setGameSceneActive(false);
+    setActivePage("profile");
+  });
+
+  dom.setupGuestButton.addEventListener("click", () => {
+    setState((draft) => {
+      draft.auth.user = null;
+      draft.auth.status = "guest";
+      draft.profile.displayName = draft.profile.displayName || "Guest Dancer";
+    });
+    updateProfileCard();
+  });
+
   dom.displayNameInput.addEventListener("input", () => {
     setState((draft) => {
       draft.profile.displayName = dom.displayNameInput.value;
@@ -389,6 +450,7 @@ const init = async () => {
     draft.run.timeLeft = level.timeSec;
   });
   renderThemeOptions();
+  populateSetupOptions();
   renderLevels();
   renderTracks();
   renderLeaderboardLevels();
@@ -398,6 +460,7 @@ const init = async () => {
   updateSettingsForm();
   applyTheme(state.selection.themeId);
   renderTrackEmbed();
+  toggleSetupOverlay(true);
   bindEvents();
   bindAuthActions();
   bindAudioControls();
