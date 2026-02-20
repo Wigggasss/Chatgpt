@@ -11,7 +11,7 @@ export const state = {
   },
   selection: {
     levelId: 1,
-    trackId: "billie-jean",
+    trackId: "neon-pulse",
     themeId: "neon-purple",
     layout: "horizontal",
     noteSize: "medium",
@@ -61,7 +61,7 @@ export const state = {
     displayName: "Guest Dancer",
     favoriteTrack: "",
     lastLevelId: 1,
-    lastTrackId: "billie-jean",
+    lastTrackId: "neon-pulse",
     personalBestScoreByLevel: {},
     personalBestAccuracyByLevel: {},
     personalBestStreakByLevel: {},

@@ -196,6 +196,9 @@ const handleKeydown = (event) => {
 
 const syncSetupControls = () => {
   dom.setupTrackSelect.value = state.selection.trackId;
+  if (!dom.setupTrackSelect.value) {
+    dom.setupTrackSelect.value = tracks[0].id;
+  }
   dom.setupLevelSelect.value = String(state.selection.levelId);
   dom.setupLayoutSelect.value = state.selection.layout;
   dom.setupThemeSelect.value = state.selection.themeId;
@@ -285,6 +288,13 @@ const loadSettings = () => {
   const stored = JSON.parse(localStorage.getItem("moonwalk-settings") || "{}");
   setState((draft) => {
     draft.selection = { ...draft.selection, ...stored };
+    const validTrackIds = new Set(tracks.map((track) => track.id));
+    if (draft.selection.trackId !== "custom" && !validTrackIds.has(draft.selection.trackId)) {
+      draft.selection.trackId = tracks[0].id;
+    }
+    if (draft.selection.trackId === "custom" && !draft.selection.customTrackQuery?.trim()) {
+      draft.selection.trackId = tracks[0].id;
+    }
   });
 };
 
