@@ -227,6 +227,8 @@ const syncSetupControls = () => {
   dom.bindDown.value = formatKeyLabel(state.selection.keybinds.down);
   dom.bindUp.value = formatKeyLabel(state.selection.keybinds.up);
   dom.bindRight.value = formatKeyLabel(state.selection.keybinds.right);
+  if (dom.timingOffsetInput) dom.timingOffsetInput.value = state.selection.timingOffset || 0;
+  if (dom.timingOffsetValue) dom.timingOffsetValue.textContent = `${state.selection.timingOffset || 0}ms`;
 };
 
 const syncSelection = () => {
@@ -452,6 +454,13 @@ const bindEvents = () => {
   dom.setupLaneScaleInput.addEventListener("input", () => applySelection("laneScale", Number(dom.setupLaneScaleInput.value)));
   dom.setupFxSelect.addEventListener("change", () => applySelection("fx", dom.setupFxSelect.value));
   dom.setupDancerSelect.addEventListener("change", () => applySelection("dancer", dom.setupDancerSelect.value));
+
+  if (dom.timingOffsetInput) {
+    dom.timingOffsetInput.addEventListener("input", () => {
+      applySelection("timingOffset", Number(dom.timingOffsetInput.value));
+      if (dom.timingOffsetValue) dom.timingOffsetValue.textContent = `${dom.timingOffsetInput.value}ms`;
+    });
+  }
 
   dom.setupCustomTrackButton.addEventListener("click", () => {
     const query = dom.setupCustomTrackInput.value.trim();

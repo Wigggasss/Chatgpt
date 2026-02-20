@@ -173,6 +173,8 @@ export const updateSettingsForm = () => {
   dom.laneScaleInput.value = state.selection.laneScale;
   dom.fxSelect.value = state.selection.fx;
   dom.dancerSelect.value = state.selection.dancer;
+  if (dom.timingOffsetInput) dom.timingOffsetInput.value = state.selection.timingOffset || 0;
+  if (dom.timingOffsetValue) dom.timingOffsetValue.textContent = `${state.selection.timingOffset || 0}ms`;
 };
 
 export const renderTrackEmbed = (autoplay = false) => {

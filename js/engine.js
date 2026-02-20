@@ -114,7 +114,8 @@ export const handleHit = (direction) => {
   const elapsed = (now - note.spawnTime) / 1000;
   const x = laneWidth - elapsed * level.speedPxPerSec;
   const diff = Math.abs(x - hitX);
-  const diffMs = (diff / level.speedPxPerSec) * 1000;
+  const offset = state.selection.timingOffset || 0;
+  const diffMs = (diff / level.speedPxPerSec) * 1000 - offset;
 
   if (diffMs <= level.wOkayMs) {
     const grade = diffMs <= level.wPerfectMs ? "perfect" : diffMs <= level.wGoodMs ? "good" : "okay";

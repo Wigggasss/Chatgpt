@@ -22,6 +22,7 @@ export const state = {
     autoplay: false,
     customTrackQuery: "",
     customTrackBpm: 120,
+    timingOffset: 0,
     keybinds: {
       left: "arrowleft",
       down: "arrowdown",

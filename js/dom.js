@@ -71,6 +71,8 @@ export const dom = {
   layoutSelect: document.getElementById("layoutSelect"),
   noteSizeSelect: document.getElementById("noteSizeSelect"),
   laneScaleInput: document.getElementById("laneScaleInput"),
+  timingOffsetInput: document.getElementById("timingOffsetInput"),
+  timingOffsetValue: document.getElementById("timingOffsetValue"),
   fxSelect: document.getElementById("fxSelect"),
   dancerSelect: document.getElementById("dancerSelect"),
   muteToggle: document.getElementById("muteToggle"),
