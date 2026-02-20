@@ -4,8 +4,7 @@ import { dom } from "./dom.js";
 import { publishGlobalConfig } from "./api.js";
 import { broadcastLocalUpdate } from "./sync.js";
 import { updateAdminVisibility } from "./ui.js";
-
-const ADMIN_ACCESS_CODE = "moonwalk";
+import { executeCommand } from "./adminCommands.js";
 
 const log = (status, message, details = "") => {
   const card = document.createElement("div");
@@ -80,6 +79,15 @@ const handleCommand = (raw) => {
   if (!state.ui.adminUnlocked) {
     log("⚠️", "Locked", "Unlock admin access before running commands.");
     return;
+  }
+
+  // Support new /category subcommand format
+  if (command.startsWith("/")) {
+    const result = executeCommand(command);
+    if (result) {
+      log("✅", "Command", result);
+      return;
+    }
   }
 
   if (command === "help" || command === "commands") {
@@ -253,7 +261,7 @@ export const initAdminPanel = () => {
   if (dom.adminUnlockButton) {
     dom.adminUnlockButton.addEventListener("click", () => {
       const code = dom.adminUnlockInput.value.trim();
-      if (code === ADMIN_ACCESS_CODE) {
+      if (code === state.auth.adminPassword) {
         setState((draft) => {
           draft.ui.adminUnlocked = true;
           draft.auth.role = draft.auth.role === "guest" ? "host" : draft.auth.role;
@@ -308,7 +316,76 @@ export const initAdminPanel = () => {
     }
     updateDraftCount();
   });
+
+  // Console input handling
+  const consoleHistory = [];
+  let consoleHistoryIndex = -1;
+
+  const logConsoleOutput = (message, type = "info") => {
+    if (!dom.consoleOutput) return;
+    const line = document.createElement("div");
+    line.className = `console-output-line ${type}`;
+    line.textContent = message;
+    dom.consoleOutput.appendChild(line);
+    dom.consoleOutput.scrollTop = dom.consoleOutput.scrollHeight;
+  };
+
+  if (dom.consoleInput) {
+    dom.consoleInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        const input = dom.consoleInput.value.trim();
+        if (input) {
+          logConsoleOutput(`> ${input}`, "info");
+          const result = executeCommand(input);
+          if (result) {
+            logConsoleOutput(result, "success");
+          } else {
+            logConsoleOutput("Unknown command", "error");
+          }
+          consoleHistory.unshift(input);
+          consoleHistoryIndex = -1;
+          dom.consoleInput.value = "";
+        }
+        event.preventDefault();
+        return;
+      }
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (consoleHistory.length === 0) return;
+        consoleHistoryIndex = Math.min(
+          consoleHistory.length - 1,
+          consoleHistoryIndex === -1 ? 0 : consoleHistoryIndex + 1
+        );
+        dom.consoleInput.value = consoleHistory[consoleHistoryIndex];
+        return;
+      }
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (consoleHistory.length === 0) return;
+        if (consoleHistoryIndex <= 0) {
+          consoleHistoryIndex = -1;
+          dom.consoleInput.value = "";
+          return;
+        }
+        consoleHistoryIndex -= 1;
+        dom.consoleInput.value = consoleHistory[consoleHistoryIndex];
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        dom.adminConsole.classList.add("hidden");
+        return;
+      }
+    });
+  }
+
+  if (dom.consoleClose) {
+    dom.consoleClose.addEventListener("click", () => {
+      dom.adminConsole.classList.add("hidden");
+    });
+  }
 };
+
 
 export const revealAdminNav = () => {
   dom.adminNavSection.classList.remove("hidden");

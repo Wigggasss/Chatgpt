@@ -1,6 +1,6 @@
 import { trackProfiles } from "./config.js";
 import { state, setState } from "./state.js";
-import { getLevel, getTrack } from "./ui.js";
+import { getLevel, getTrack, updateHUD } from "./ui.js";
 import { dom } from "./dom.js";
 
 const notes = [];
@@ -55,12 +55,17 @@ const spawnNote = (now, direction) => {
   note.dataset.direction = direction;
   note.textContent = directionSymbols[direction];
   note.style.top = `${directionRows[direction]}%`;
-  note.style.left = `${dom.lane.clientWidth}px`;
+  
+  const laneWidth = dom.lane.clientWidth;
+  // Randomize horizontal spawn position across full lane width to prevent stacking
+  const randomX = Math.random() * laneWidth;
+  note.style.left = `${randomX}px`;
+  
   // scale note slightly with level speed to aid visibility at high speeds
   const level = getLevel();
   const baseSpeed = 300;
   const extra = Math.max(0, (level.speedPxPerSec - baseSpeed) / 600);
-  const scale = Math.min(1.35, 1 + extra);
+  const scale = Math.min(1.5, 1 + extra + 0.1);
   note.style.transform = `translate(-50%, -50%) scale(${scale})`;
   dom.lane.appendChild(note);
   notes.push({
@@ -105,7 +110,8 @@ const updateNotes = (now, dt) => {
 export const handleHit = (direction) => {
   if (!state.run.running || state.run.paused) return;
   const now = performance.now();
-  if (now - lastInputAt < 45) return;
+  // Reduce debounce to 15ms to allow proper single taps in rhythm games
+  if (now - lastInputAt < 15) return;
   lastInputAt = now;
 
   if (!notes.length) {
@@ -238,6 +244,7 @@ export const startRun = () => {
         state.run.lastSpawnAt = now;
       }
       updateNotes(now, dt);
+      updateHUD();
       if (state.run.timeLeft <= 0) {
         endRun();
         return;
@@ -273,7 +280,12 @@ export const resetRun = () => {
     clearInterval(state.run.timerId);
     state.run.timerId = null;
   }
-  notes.forEach((note) => note.element.remove());
+  // Completely clear all notes from DOM
+  notes.forEach((note) => {
+    if (note.element && note.element.parentNode) {
+      note.element.remove();
+    }
+  });
   notes.length = 0;
   resetPatternState();
 

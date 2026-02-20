@@ -183,8 +183,6 @@ const resolveDirectionFromKey = (key) => {
 
 const handleKeydown = (event) => {
   if (state.ui.scene !== "game") return;
-  const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName);
-  if (isTyping) return;
 
   const rawKey = event.key;
   const key = rawKey.toLowerCase();
@@ -196,6 +194,11 @@ const handleKeydown = (event) => {
     event.stopPropagation();
   }
 
+  // Don't process game input if user is typing in a regular input (but allow game keys when console is focused)
+  const isConsoleInput = event.target.id === "consoleInput";
+  const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName) && !isConsoleInput;
+  if (isTyping) return;
+
   // Ignore auto-repeat and held keys to prevent spamming exploits
   if (event.repeat) return;
   if (pressedKeys.has(key)) return;
@@ -206,6 +209,8 @@ const handleKeydown = (event) => {
   if (direction) {
     const grade = handleHit(direction) || "good";
     updateDancer(grade);
+    updateHUD();
+    updateUpcomingHud();
     return;
   }
 
@@ -431,6 +436,9 @@ const bindEvents = () => {
 
   dom.resetButton.addEventListener("click", () => {
     resetRun();
+    updateHUD();
+    updateUpcomingHud();
+    dom.timingFeedback.textContent = "Press Start to begin.";
     toggleSetupOverlay(true);
     setRunStatus("Ready");
     dom.pauseButton.disabled = true;
@@ -630,6 +638,9 @@ const bindEvents = () => {
     updateKeyHud();
   });
 
+  dom.profileLoginButton.addEventListener("click", () => setActivePage("profile"));
+};
+
 const updateKeyHud = () => {
   try {
     if (!dom.keyHud) return;
@@ -650,7 +661,7 @@ const updateKeyHud = () => {
 
 const dirSymbols = { left: "←", right: "→", up: "↑", down: "↓" };
 
-const updateUpcomingHud = () => {
+export const updateUpcomingHud = () => {
   try {
     if (!dom.upcomingNote) return;
     if (state.ui.scene !== "game") {
@@ -669,9 +680,6 @@ const updateUpcomingHud = () => {
   } catch (e) {
     // ignore
   }
-};
-
-  dom.profileLoginButton.addEventListener("click", () => setActivePage("profile"));
 };
 
 const init = async () => {
@@ -729,8 +737,11 @@ const init = async () => {
   document.addEventListener("keydown", (event) => {
     // require Ctrl+Alt+Shift+M to reduce browser hotkey conflicts (Opera/GX)
     if (event.ctrlKey && event.shiftKey && event.altKey && event.key.toLowerCase() === "m") {
-      if (state.ui.scene !== "game") {
-        setActivePage("admin");
+      if (dom.adminConsole) {
+        dom.adminConsole.classList.toggle("hidden");
+        if (!dom.adminConsole.classList.contains("hidden")) {
+          dom.consoleInput?.focus();
+        }
       }
       event.preventDefault();
     }

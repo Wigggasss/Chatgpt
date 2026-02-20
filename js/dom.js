@@ -118,4 +118,8 @@ export const dom = {
   summaryBackLevels: document.getElementById("summaryBackLevels"),
   summaryViewLeaderboard: document.getElementById("summaryViewLeaderboard"),
   summaryClose: document.getElementById("summaryClose"),
+  adminConsole: document.getElementById("adminConsole"),
+  consoleInput: document.getElementById("consoleInput"),
+  consoleOutput: document.getElementById("consoleOutput"),
+  consoleClose: document.querySelector(".console-close"),
 };
