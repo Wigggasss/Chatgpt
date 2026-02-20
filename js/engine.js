@@ -283,6 +283,13 @@ export const endRun = () => {
     cancelAnimationFrame(state.run.rafId);
     state.run.rafId = null;
   }
+  if (state.run.timerId) {
+    clearInterval(state.run.timerId);
+    state.run.timerId = null;
+  }
+  notes.forEach((note) => note.element.remove());
+  notes.length = 0;
+  resetPatternState();
   setState((draft) => {
     draft.run.running = false;
     draft.run.paused = false;

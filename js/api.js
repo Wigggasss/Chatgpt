@@ -12,15 +12,17 @@ export const getSupabaseClient = async () => {
   return supabaseClient;
 };
 
-export const fetchLeaderboard = async (levelId) => {
+export const fetchLeaderboard = async () => {
   const client = await getSupabaseClient();
   if (!client) {
-    return JSON.parse(localStorage.getItem(`leaderboard-${levelId}`) || "[]");
+    const buckets = Object.keys(localStorage)
+      .filter((key) => key.startsWith("leaderboard-"))
+      .flatMap((key) => JSON.parse(localStorage.getItem(key) || "[]"));
+    return buckets.sort((a, b) => b.score - a.score).slice(0, 50);
   }
   const { data, error } = await client
     .from("scores")
     .select("player_name,score,accuracy,streak_max,track_id,created_at")
-    .eq("level_id", levelId)
     .order("score", { ascending: false })
     .limit(50);
   if (error) throw error;

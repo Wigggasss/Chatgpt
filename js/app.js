@@ -157,15 +157,23 @@ const updateDancer = (grade) => {
   dom.dancer.className = `dancer-silhouette ${choice} ${state.selection.dancer}`;
 };
 
-const keyToDirection = {
-  arrowleft: "left",
-  a: "left",
-  arrowdown: "down",
-  s: "down",
-  arrowup: "up",
-  w: "up",
-  arrowright: "right",
-  d: "right",
+const formatKeyLabel = (key) => {
+  if (!key) return "";
+  if (key.startsWith("arrow")) {
+    return `Arrow ${key.replace("arrow", "").replace(/^./, (ch) => ch.toUpperCase())}`;
+  }
+  if (key === " ") return "Space";
+  return key.length === 1 ? key.toUpperCase() : key;
+};
+
+const resolveDirectionFromKey = (key) => {
+  const lowered = key.toLowerCase();
+  const binds = state.selection.keybinds;
+  if (lowered === binds.left) return "left";
+  if (lowered === binds.down) return "down";
+  if (lowered === binds.up) return "up";
+  if (lowered === binds.right) return "right";
+  return null;
 };
 
 const handleKeydown = (event) => {
@@ -173,7 +181,7 @@ const handleKeydown = (event) => {
   const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName);
   if (isTyping) return;
   const key = event.key.toLowerCase();
-  const direction = keyToDirection[key];
+  const direction = resolveDirectionFromKey(key);
   if (direction) {
     const grade = handleHit(direction) || "good";
     updateDancer(grade);
@@ -195,6 +203,11 @@ const syncSetupControls = () => {
   dom.setupLaneScaleInput.value = state.selection.laneScale;
   dom.setupFxSelect.value = state.selection.fx;
   dom.setupDancerSelect.value = state.selection.dancer;
+  dom.setupCustomTrackInput.value = state.selection.customTrackQuery || "";
+  dom.bindLeft.value = formatKeyLabel(state.selection.keybinds.left);
+  dom.bindDown.value = formatKeyLabel(state.selection.keybinds.down);
+  dom.bindUp.value = formatKeyLabel(state.selection.keybinds.up);
+  dom.bindRight.value = formatKeyLabel(state.selection.keybinds.right);
 };
 
 const syncSelection = () => {
@@ -211,6 +224,7 @@ const populateSetupOptions = () => {
   dom.setupTrackSelect.innerHTML = tracks
     .map((track) => `<option value="${track.id}">${track.name} (${track.bpm} BPM)</option>`)
     .join("");
+  dom.setupTrackSelect.insertAdjacentHTML("beforeend", `<option value="custom">Custom Song (AcroMusic)</option>`);
   dom.setupLevelSelect.innerHTML = levels
     .map((level) => `<option value="${level.id}">Lv ${level.id} · ${level.name}</option>`)
     .join("");
@@ -226,6 +240,15 @@ const toggleSetupOverlay = (visible) => {
   dom.setupRunHint.textContent = state.run.running
     ? "Reset to change settings."
     : "Choose settings before starting.";
+};
+
+const resetKeybindsToDefault = () => {
+  applySelection("keybinds", {
+    left: "arrowleft",
+    down: "arrowdown",
+    up: "arrowup",
+    right: "arrowright",
+  });
 };
 
 const applySelection = (key, value) => {
@@ -295,7 +318,7 @@ const submitRunScore = async () => {
 
 const refreshLeaderboard = async () => {
   try {
-    const entries = await fetchLeaderboard(state.leaderboard.selectedLevelId);
+    const entries = await fetchLeaderboard();
     renderLeaderboard(entries);
   } catch (error) {
     renderLeaderboard([]);
@@ -310,7 +333,7 @@ const bindEvents = () => {
   dom.enterGameButton.addEventListener("click", () => {
     setGameSceneActive(true);
     toggleSetupOverlay(true);
-    dom.timingFeedback.textContent = "Start from setup to begin.";
+    dom.timingFeedback.textContent = "Choose a track in setup, then start.";
   });
 
   dom.exitGameButton.addEventListener("click", () => {
@@ -327,6 +350,7 @@ const bindEvents = () => {
       return;
     }
     toggleSetupOverlay(false);
+    renderTrackEmbed(true);
     startRun();
     setRunStatus("Running");
     dom.pauseButton.disabled = false;
@@ -348,8 +372,11 @@ const bindEvents = () => {
   dom.summaryPlayAgain.addEventListener("click", () => {
     closeSummary();
     resetRun();
-    toggleSetupOverlay(true);
-    dom.pauseButton.disabled = true;
+    toggleSetupOverlay(false);
+    renderTrackEmbed(true);
+    startRun();
+    setRunStatus("Running");
+    dom.pauseButton.disabled = false;
   });
   dom.summaryBackLevels.addEventListener("click", () => {
     closeSummary();
@@ -387,9 +414,6 @@ const bindEvents = () => {
   });
 
   dom.leaderboardLevelSelect.addEventListener("change", () => {
-    setState((draft) => {
-      draft.leaderboard.selectedLevelId = Number(dom.leaderboardLevelSelect.value);
-    });
     refreshLeaderboard();
   });
 
@@ -409,6 +433,36 @@ const bindEvents = () => {
   dom.setupLaneScaleInput.addEventListener("input", () => applySelection("laneScale", Number(dom.setupLaneScaleInput.value)));
   dom.setupFxSelect.addEventListener("change", () => applySelection("fx", dom.setupFxSelect.value));
   dom.setupDancerSelect.addEventListener("change", () => applySelection("dancer", dom.setupDancerSelect.value));
+
+  dom.setupCustomTrackButton.addEventListener("click", () => {
+    const query = dom.setupCustomTrackInput.value.trim();
+    if (!query) return;
+    setState((draft) => {
+      draft.selection.trackId = "custom";
+      draft.selection.customTrackQuery = query;
+      draft.selection.customTrackBpm = Math.max(70, Math.min(190, 80 + Math.floor(query.length * 2)));
+    });
+    syncSelection();
+    persistSettings();
+  });
+
+  const bindFields = [
+    [dom.bindLeft, "left"],
+    [dom.bindDown, "down"],
+    [dom.bindUp, "up"],
+    [dom.bindRight, "right"],
+  ];
+
+  bindFields.forEach(([input, direction]) => {
+    input.addEventListener("keydown", (event) => {
+      event.preventDefault();
+      const key = event.key.toLowerCase();
+      const next = { ...state.selection.keybinds, [direction]: key };
+      applySelection("keybinds", next);
+    });
+  });
+
+  dom.resetKeybinds.addEventListener("click", resetKeybindsToDefault);
 
   dom.setupLoginButton.addEventListener("click", () => {
     setGameSceneActive(false);
@@ -460,6 +514,7 @@ const init = async () => {
   updateSettingsForm();
   applyTheme(state.selection.themeId);
   renderTrackEmbed();
+  syncSelection();
   toggleSetupOverlay(true);
   bindEvents();
   bindAuthActions();
@@ -513,5 +568,7 @@ window.addEventListener("load", init);
 
 setRunEndCallback(() => {
   submitRunScore();
+  toggleSetupOverlay(true);
+  renderTrackEmbed(false);
   dom.pauseButton.disabled = true;
 });

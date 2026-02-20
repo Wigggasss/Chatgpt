@@ -313,9 +313,9 @@ body[data-layout="vertical"] .lane {
   color: #0f172a;
 }
 
-.note.size-small { width: 22px; height: 22px; }
-.note.size-medium { width: 28px; height: 28px; }
-.note.size-large { width: 34px; height: 34px; }
+.note.size-small { width: 30px; height: 30px; font-size: 1rem; }
+.note.size-medium { width: 40px; height: 40px; font-size: 1.2rem; }
+.note.size-large { width: 52px; height: 52px; font-size: 1.4rem; }
 
 .timing-feedback {
   margin-top: 12px;
@@ -388,6 +388,10 @@ body[data-layout="vertical"] .lane {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
+}
+
+.setup-custom-track {
+  align-self: end;
 }
 
 .setup-grid label,
@@ -509,10 +513,13 @@ body.game-mode .app-shell {
   gap: 12px;
 }
 
-.note.dir-left { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
-.note.dir-down { background: linear-gradient(135deg, #38bdf8, #a855f7); }
-.note.dir-up { background: linear-gradient(135deg, #f472b6, #facc15); }
-.note.dir-right { background: linear-gradient(135deg, #34d399, #22d3ee); }
+.note.dir-left,
+.note.dir-down,
+.note.dir-up,
+.note.dir-right {
+  background: var(--accent);
+}
+
 
 .dancer-stage {
   height: 220px;
@@ -577,6 +584,14 @@ body.game-mode .app-shell {
   width: 100%;
   height: 180px;
   border-radius: 12px;
+}
+
+.track-embed audio {
+  width: 100%;
+}
+
+.game-track-embed iframe {
+  height: 140px;
 }
 
 .panel-row {
@@ -661,6 +676,22 @@ body.game-mode .app-shell {
 
 .settings-panel .form-grid {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.controls-grid input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0f1224;
+  color: var(--text);
 }
 
 .bullet-list {

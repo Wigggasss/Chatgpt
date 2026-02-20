@@ -18,6 +18,16 @@ export const state = {
     laneScale: 1,
     fx: "medium",
     dancer: "low",
+    muted: false,
+    autoplay: false,
+    customTrackQuery: "",
+    customTrackBpm: 120,
+    keybinds: {
+      left: "arrowleft",
+      down: "arrowdown",
+      up: "arrowup",
+      right: "arrowright",
+    },
   },
   run: {
     running: false,
