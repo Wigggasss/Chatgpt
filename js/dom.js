@@ -68,6 +68,7 @@ export const dom = {
   logoutButton: document.getElementById("logoutButton"),
   displayNameInput: document.getElementById("displayNameInput"),
   favoriteTrackInput: document.getElementById("favoriteTrackInput"),
+  saveProfileButton: document.getElementById("saveProfileButton"),
   themeSelect: document.getElementById("themeSelect"),
   layoutSelect: document.getElementById("layoutSelect"),
   noteSizeSelect: document.getElementById("noteSizeSelect"),

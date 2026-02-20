@@ -520,6 +520,29 @@ const bindEvents = () => {
     });
   });
 
+  if (dom.saveProfileButton) {
+    dom.saveProfileButton.addEventListener("click", async () => {
+      const payload = {
+        displayName: state.profile.displayName,
+        themeId: state.selection.themeId,
+        layout: state.selection.layout,
+        noteSize: state.selection.noteSize,
+        laneScale: state.selection.laneScale,
+        fx: state.selection.fx,
+        lastLevelId: state.selection.levelId,
+        lastTrackId: state.selection.trackId,
+      };
+      try {
+        await saveProfile(payload);
+        dom.settingsHint.textContent = "Profile saved.";
+        setTimeout(() => (dom.settingsHint.textContent = ""), 2000);
+      } catch (e) {
+        dom.settingsHint.textContent = "Failed to save profile.";
+        setTimeout(() => (dom.settingsHint.textContent = ""), 2000);
+      }
+    });
+  }
+
   document.addEventListener("keydown", handleKeydown);
 
   document.addEventListener("keyup", (event) => {
