@@ -290,6 +290,26 @@ body[data-layout="vertical"] .lane {
   overflow: hidden;
 }
 
+/* Visual feedback for hit grades and misses */
+.lane {
+  transition: box-shadow 120ms ease, filter 120ms ease;
+}
+.lane.grade-perfect {
+  box-shadow: 0 0 28px 6px rgba(72, 187, 120, 0.14) inset, 0 0 28px rgba(72, 187, 120, 0.28);
+  filter: saturate(1.15) brightness(1.06);
+}
+.lane.grade-good {
+  box-shadow: 0 0 22px 4px rgba(59, 130, 246, 0.12) inset, 0 0 20px rgba(59, 130, 246, 0.22);
+  filter: saturate(1.08);
+}
+.lane.grade-okay {
+  box-shadow: 0 0 18px 3px rgba(245, 158, 11, 0.12) inset, 0 0 16px rgba(245, 158, 11, 0.18);
+}
+.lane.grade-miss {
+  box-shadow: 0 0 26px 6px rgba(248, 113, 113, 0.16) inset, 0 0 24px rgba(248, 113, 113, 0.24);
+  filter: contrast(1.03) brightness(0.92) saturate(0.9);
+}
+
 .hit-line {
   position: absolute;
   left: 18%;
@@ -312,6 +332,15 @@ body[data-layout="vertical"] .lane {
   font-weight: 700;
   color: #0f172a;
 }
+
+/* Improve visibility at high speeds */
+.note {
+  border: 2px solid rgba(0,0,0,0.12);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.08);
+}
+.note.size-small { width: 34px; height: 34px; font-size: 1rem; }
+.note.size-medium { width: 44px; height: 44px; font-size: 1.2rem; }
+.note.size-large { width: 56px; height: 56px; font-size: 1.4rem; }
 
 .note.size-small { width: 30px; height: 30px; font-size: 1rem; }
 .note.size-medium { width: 40px; height: 40px; font-size: 1.2rem; }
