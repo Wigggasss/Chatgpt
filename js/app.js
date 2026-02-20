@@ -197,6 +197,7 @@ const handleKeydown = (event) => {
   if (event.repeat) return;
   if (pressedKeys.has(key)) return;
   pressedKeys.add(key);
+  updateKeyHud();
 
   const direction = resolveDirectionFromKey(key);
   if (direction) {
@@ -515,7 +516,26 @@ const bindEvents = () => {
   document.addEventListener("keyup", (event) => {
     const key = event.key.toLowerCase();
     if (pressedKeys.has(key)) pressedKeys.delete(key);
+    updateKeyHud();
   });
+
+const updateKeyHud = () => {
+  try {
+    if (!dom.keyHud) return;
+    if (state.ui.scene !== "game") {
+      dom.keyHud.classList.add("hidden");
+      dom.keyHud.innerHTML = "";
+      return;
+    }
+    dom.keyHud.classList.remove("hidden");
+    const labels = Array.from(pressedKeys).map((k) => {
+      return `<span class="key-pill">${formatKeyLabel(k)}</span>`;
+    });
+    dom.keyHud.innerHTML = labels.join(" ");
+  } catch (e) {
+    // ignore
+  }
+};
 
   dom.profileLoginButton.addEventListener("click", () => setActivePage("profile"));
 };

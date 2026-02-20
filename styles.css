@@ -470,6 +470,27 @@ body.game-mode .app-shell {
   align-items: center;
   gap: 16px;
 }
+.key-hud {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+  font-weight: 700;
+  color: var(--muted);
+}
+.key-hud .key-pill {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  font-size: 0.85rem;
+  min-width: 28px;
+  text-align: center;
+}
 
 .game-status {
   display: flex;
