@@ -25,7 +25,7 @@ import {
 import { initAuth, bindAuthActions } from "./auth.js";
 import { initSync, setNetworkStatus } from "./sync.js";
 import { fetchLeaderboard, submitScore, saveProfile } from "./api.js";
-import { startRun, pauseRun, resetRun, handleHit, endRun, setRunEndCallback } from "./engine.js";
+import { startRun, pauseRun, resetRun, handleHit, endRun, setRunEndCallback, peekNextNote } from "./engine.js";
 import { initAdminPanel, revealAdminNav } from "./admin.js";
 import { updateAudioEmbed, bindAudioControls } from "./audio.js";
 
@@ -96,6 +96,8 @@ let quizIndex = 0;
 let quizScore = 0;
 let quizStreak = 0;
 
+const pressedKeys = new Set();
+
 const updateQuizUI = () => {
   dom.quizScore.textContent = quizScore;
   dom.quizStreak.textContent = quizStreak;
@@ -157,32 +159,60 @@ const updateDancer = (grade) => {
   dom.dancer.className = `dancer-silhouette ${choice} ${state.selection.dancer}`;
 };
 
-const keyToDirection = {
-  arrowleft: "left",
-  a: "left",
-  arrowdown: "down",
-  s: "down",
-  arrowup: "up",
-  w: "up",
-  arrowright: "right",
-  d: "right",
+const formatKeyLabel = (key) => {
+  if (!key) return "";
+  const lowered = key.toLowerCase();
+  if (lowered === "arrowleft") return "←";
+  if (lowered === "arrowright") return "→";
+  if (lowered === "arrowup") return "↑";
+  if (lowered === "arrowdown") return "↓";
+  if (lowered === " ") return "␣";
+  // single-letter keys (wasd) show uppercase letter
+  return key.length === 1 ? key.toUpperCase() : key;
+};
+
+const resolveDirectionFromKey = (key) => {
+  const lowered = key.toLowerCase();
+  const binds = state.selection.keybinds;
+  if (lowered === binds.left) return "left";
+  if (lowered === binds.down) return "down";
+  if (lowered === binds.up) return "up";
+  if (lowered === binds.right) return "right";
+  return null;
 };
 
 const handleKeydown = (event) => {
   if (state.ui.scene !== "game") return;
   const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName);
   if (isTyping) return;
-  const key = event.key.toLowerCase();
-  const direction = keyToDirection[key];
+
+  const rawKey = event.key;
+  const key = rawKey.toLowerCase();
+
+  // Prevent page scrolling / default browser navigation while in-game for common keys
+  const scrollKeys = ["arrowleft", "arrowright", "arrowup", "arrowdown", " ", "pageup", "pagedown", "home", "end"];
+  if (scrollKeys.includes(key)) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  // Ignore auto-repeat and held keys to prevent spamming exploits
+  if (event.repeat) return;
+  if (pressedKeys.has(key)) return;
+  pressedKeys.add(key);
+  updateKeyHud();
+
+  const direction = resolveDirectionFromKey(key);
   if (direction) {
     const grade = handleHit(direction) || "good";
     updateDancer(grade);
-    event.preventDefault();
+    return;
   }
+
   if (key === " ") {
     pauseRun();
     setRunStatus(state.run.paused ? "Paused" : "Running");
-    event.preventDefault();
+    return;
   }
 };
 
@@ -195,6 +225,13 @@ const syncSetupControls = () => {
   dom.setupLaneScaleInput.value = state.selection.laneScale;
   dom.setupFxSelect.value = state.selection.fx;
   dom.setupDancerSelect.value = state.selection.dancer;
+  dom.setupCustomTrackInput.value = state.selection.customTrackQuery || "";
+  if (!dom.bindLeft.classList.contains("capturing")) dom.bindLeft.value = formatKeyLabel(state.selection.keybinds.left);
+  if (!dom.bindDown.classList.contains("capturing")) dom.bindDown.value = formatKeyLabel(state.selection.keybinds.down);
+  if (!dom.bindUp.classList.contains("capturing")) dom.bindUp.value = formatKeyLabel(state.selection.keybinds.up);
+  if (!dom.bindRight.classList.contains("capturing")) dom.bindRight.value = formatKeyLabel(state.selection.keybinds.right);
+  if (dom.timingOffsetInput) dom.timingOffsetInput.value = state.selection.timingOffset || 0;
+  if (dom.timingOffsetValue) dom.timingOffsetValue.textContent = `${state.selection.timingOffset || 0}ms`;
 };
 
 const syncSelection = () => {
@@ -211,6 +248,7 @@ const populateSetupOptions = () => {
   dom.setupTrackSelect.innerHTML = tracks
     .map((track) => `<option value="${track.id}">${track.name} (${track.bpm} BPM)</option>`)
     .join("");
+  dom.setupTrackSelect.insertAdjacentHTML("beforeend", `<option value="custom">Custom Song (AcroMusic)</option>`);
   dom.setupLevelSelect.innerHTML = levels
     .map((level) => `<option value="${level.id}">Lv ${level.id} · ${level.name}</option>`)
     .join("");
@@ -226,6 +264,15 @@ const toggleSetupOverlay = (visible) => {
   dom.setupRunHint.textContent = state.run.running
     ? "Reset to change settings."
     : "Choose settings before starting.";
+};
+
+const resetKeybindsToDefault = () => {
+  applySelection("keybinds", {
+    left: "arrowleft",
+    down: "arrowdown",
+    up: "arrowup",
+    right: "arrowright",
+  });
 };
 
 const applySelection = (key, value) => {
@@ -295,22 +342,66 @@ const submitRunScore = async () => {
 
 const refreshLeaderboard = async () => {
   try {
-    const entries = await fetchLeaderboard(state.leaderboard.selectedLevelId);
+    const level = dom.leaderboardLevelSelect ? dom.leaderboardLevelSelect.value || "all" : "all";
+    const entries = await fetchLeaderboard(level);
     renderLeaderboard(entries);
   } catch (error) {
     renderLeaderboard([]);
   }
 };
 
+// onboarding: if user hasn't seen tutorial, offer a quick run
+const runOnboardingIfNeeded = () => {
+  try {
+    const seen = localStorage.getItem("seenTutorial");
+    const tutorialPanel = document.querySelector(".tutorial-panel");
+    const btn = document.getElementById("startTutorialButton");
+    if (seen) {
+      // hide tutorial panel for returning users
+      if (tutorialPanel) tutorialPanel.classList.add("hidden");
+      return;
+    }
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      localStorage.setItem("seenTutorial", "1");
+      if (tutorialPanel) tutorialPanel.classList.add("hidden");
+      // start a short tutorial round
+      setGameSceneActive(true);
+      toggleSetupOverlay(false);
+      renderTrackEmbed(true);
+      // choose a gentle level if available
+      applySelection("levelId", 1);
+      startRun();
+      setRunStatus("Running (Tutorial)");
+      // end tutorial after 8 seconds
+      setTimeout(() => {
+        try {
+          endRun();
+          setRunStatus("Ready");
+          toggleSetupOverlay(true);
+        } catch (e) {}
+      }, 8000);
+    });
+  } catch (e) {
+    // ignore
+  }
+};
+
 const bindEvents = () => {
   dom.navItems.forEach((button) => {
-    button.addEventListener("click", () => setActivePage(button.dataset.page));
+    button.addEventListener("click", () => {
+      const page = button.dataset.page;
+      setActivePage(page);
+      if (page === "leaderboard") {
+        refreshLeaderboard();
+      }
+    });
   });
 
   dom.enterGameButton.addEventListener("click", () => {
     setGameSceneActive(true);
     toggleSetupOverlay(true);
-    dom.timingFeedback.textContent = "Start from setup to begin.";
+    dom.timingFeedback.textContent = "Choose a track in setup, then start.";
   });
 
   dom.exitGameButton.addEventListener("click", () => {
@@ -327,6 +418,7 @@ const bindEvents = () => {
       return;
     }
     toggleSetupOverlay(false);
+    renderTrackEmbed(true);
     startRun();
     setRunStatus("Running");
     dom.pauseButton.disabled = false;
@@ -348,8 +440,11 @@ const bindEvents = () => {
   dom.summaryPlayAgain.addEventListener("click", () => {
     closeSummary();
     resetRun();
-    toggleSetupOverlay(true);
-    dom.pauseButton.disabled = true;
+    toggleSetupOverlay(false);
+    renderTrackEmbed(true);
+    startRun();
+    setRunStatus("Running");
+    dom.pauseButton.disabled = false;
   });
   dom.summaryBackLevels.addEventListener("click", () => {
     closeSummary();
@@ -387,9 +482,6 @@ const bindEvents = () => {
   });
 
   dom.leaderboardLevelSelect.addEventListener("change", () => {
-    setState((draft) => {
-      draft.leaderboard.selectedLevelId = Number(dom.leaderboardLevelSelect.value);
-    });
     refreshLeaderboard();
   });
 
@@ -409,6 +501,75 @@ const bindEvents = () => {
   dom.setupLaneScaleInput.addEventListener("input", () => applySelection("laneScale", Number(dom.setupLaneScaleInput.value)));
   dom.setupFxSelect.addEventListener("change", () => applySelection("fx", dom.setupFxSelect.value));
   dom.setupDancerSelect.addEventListener("change", () => applySelection("dancer", dom.setupDancerSelect.value));
+
+  if (dom.timingOffsetInput) {
+    dom.timingOffsetInput.addEventListener("input", () => {
+      applySelection("timingOffset", Number(dom.timingOffsetInput.value));
+      if (dom.timingOffsetValue) dom.timingOffsetValue.textContent = `${dom.timingOffsetInput.value}ms`;
+    });
+  }
+
+  dom.setupCustomTrackButton.addEventListener("click", () => {
+    const query = dom.setupCustomTrackInput.value.trim();
+    if (!query) return;
+    setState((draft) => {
+      draft.selection.trackId = "custom";
+      draft.selection.customTrackQuery = query;
+      draft.selection.customTrackBpm = Math.max(70, Math.min(190, 80 + Math.floor(query.length * 2)));
+    });
+    syncSelection();
+    persistSettings();
+  });
+
+  const bindFields = [
+    [dom.bindLeft, "left"],
+    [dom.bindDown, "down"],
+    [dom.bindUp, "up"],
+    [dom.bindRight, "right"],
+  ];
+
+  const captureKeyFor = (input, direction) => {
+    const promptText = "Press any key...";
+    let capturing = false;
+    const startCapture = () => {
+      if (capturing) return;
+      capturing = true;
+      input.value = promptText;
+      input.classList.add("capturing");
+      const onKey = (event) => {
+        event.preventDefault();
+        const key = event.key.toLowerCase();
+        if (key === "escape") {
+          capturing = false;
+          input.classList.remove("capturing");
+          updateSettingsForm();
+          window.removeEventListener("keydown", onKey);
+          return;
+        }
+        const next = { ...state.selection.keybinds, [direction]: key };
+        applySelection("keybinds", next);
+        capturing = false;
+        input.classList.remove("capturing");
+        updateSettingsForm();
+        window.removeEventListener("keydown", onKey);
+      };
+      // listen globally for the next key press
+      window.addEventListener("keydown", onKey);
+    };
+
+    // Use pointerdown to start capture immediately (fixes first-click issue)
+    input.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      startCapture();
+      // ensure the input visibly appears focused
+      input.focus();
+    });
+    input.addEventListener("focus", () => startCapture());
+  };
+
+  bindFields.forEach(([input, direction]) => captureKeyFor(input, direction));
+
+  dom.resetKeybinds.addEventListener("click", resetKeybindsToDefault);
 
   dom.setupLoginButton.addEventListener("click", () => {
     setGameSceneActive(false);
@@ -438,7 +599,77 @@ const bindEvents = () => {
     });
   });
 
+  if (dom.saveProfileButton) {
+    dom.saveProfileButton.addEventListener("click", async () => {
+      const payload = {
+        displayName: state.profile.displayName,
+        themeId: state.selection.themeId,
+        layout: state.selection.layout,
+        noteSize: state.selection.noteSize,
+        laneScale: state.selection.laneScale,
+        fx: state.selection.fx,
+        lastLevelId: state.selection.levelId,
+        lastTrackId: state.selection.trackId,
+      };
+      try {
+        await saveProfile(payload);
+        dom.settingsHint.textContent = "Profile saved.";
+        setTimeout(() => (dom.settingsHint.textContent = ""), 2000);
+      } catch (e) {
+        dom.settingsHint.textContent = "Failed to save profile.";
+        setTimeout(() => (dom.settingsHint.textContent = ""), 2000);
+      }
+    });
+  }
+
   document.addEventListener("keydown", handleKeydown);
+
+  document.addEventListener("keyup", (event) => {
+    const key = event.key.toLowerCase();
+    if (pressedKeys.has(key)) pressedKeys.delete(key);
+    updateKeyHud();
+  });
+
+const updateKeyHud = () => {
+  try {
+    if (!dom.keyHud) return;
+    if (state.ui.scene !== "game") {
+      dom.keyHud.classList.add("hidden");
+      dom.keyHud.innerHTML = "";
+      return;
+    }
+    dom.keyHud.classList.remove("hidden");
+    const labels = Array.from(pressedKeys).map((k) => {
+      return `<span class="key-pill">${formatKeyLabel(k)}</span>`;
+    });
+    dom.keyHud.innerHTML = labels.join(" ");
+  } catch (e) {
+    // ignore
+  }
+};
+
+const dirSymbols = { left: "←", right: "→", up: "↑", down: "↓" };
+
+const updateUpcomingHud = () => {
+  try {
+    if (!dom.upcomingNote) return;
+    if (state.ui.scene !== "game") {
+      dom.upcomingNote.classList.add("hidden");
+      dom.upcomingNote.innerHTML = "";
+      return;
+    }
+    const next = peekNextNote();
+    if (!next) {
+      dom.upcomingNote.innerHTML = "";
+      dom.upcomingNote.classList.add("hidden");
+      return;
+    }
+    dom.upcomingNote.classList.remove("hidden");
+    dom.upcomingNote.innerHTML = `<span class="upcoming-pill">${dirSymbols[next] || next}</span>`;
+  } catch (e) {
+    // ignore
+  }
+};
 
   dom.profileLoginButton.addEventListener("click", () => setActivePage("profile"));
 };
@@ -460,11 +691,13 @@ const init = async () => {
   updateSettingsForm();
   applyTheme(state.selection.themeId);
   renderTrackEmbed();
+  syncSelection();
   toggleSetupOverlay(true);
   bindEvents();
   bindAuthActions();
   bindAudioControls();
   initAdminPanel();
+  runOnboardingIfNeeded();
   await initAuth();
   updateAdminVisibility(["admin", "superadmin", "mod", "host"].includes(state.auth.role));
   await initSync();
@@ -494,13 +727,40 @@ const init = async () => {
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "m") {
+    // require Ctrl+Alt+Shift+M to reduce browser hotkey conflicts (Opera/GX)
+    if (event.ctrlKey && event.shiftKey && event.altKey && event.key.toLowerCase() === "m") {
       if (state.ui.scene !== "game") {
         setActivePage("admin");
       }
       event.preventDefault();
     }
   });
+
+  // triple-click on avatar reveals admin nav (works around browser hotkeys)
+  if (dom.profileAvatar) {
+    let clickCount = 0;
+    let clickTimer = null;
+    dom.profileAvatar.addEventListener("click", () => {
+      clickCount += 1;
+      if (clickTimer) clearTimeout(clickTimer);
+      clickTimer = setTimeout(() => {
+        clickCount = 0;
+        clickTimer = null;
+      }, 600);
+      if (clickCount >= 3) {
+        clickCount = 0;
+        if (["admin", "superadmin", "mod", "host"].includes(state.auth.role)) {
+          setState((draft) => {
+            draft.ui.adminUnlocked = true;
+          });
+          updateAdminVisibility(true);
+          // ensure nav shown
+          revealAdminNav();
+          log && console && console.debug && console.debug("Admin revealed via avatar triple-click");
+        }
+      }
+    });
+  }
 
   setState((draft) => {
     draft.globalConfig.data = { ...globalConfigDefaults };
@@ -513,5 +773,7 @@ window.addEventListener("load", init);
 
 setRunEndCallback(() => {
   submitRunScore();
+  toggleSetupOverlay(true);
+  renderTrackEmbed(false);
   dom.pauseButton.disabled = true;
 });

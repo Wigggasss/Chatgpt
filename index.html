@@ -66,7 +66,7 @@
         </div>
 
         <div class="sidebar-footer">
-          <button class="ghost" data-page="settings">Settings</button>
+          <button class="nav-item ghost" data-page="admin" id="openAdminButton">🔒 Admin</button>
           <span class="version">v2.0.0</span>
         </div>
       </aside>
@@ -112,11 +112,20 @@
                 <h2>Quick Tutorial</h2>
                 <span class="hint">Start here</span>
               </div>
-              <ul class="bullet-list">
-                <li>Enter the Game Scene to play.</li>
-                <li>Hit the next note on the line with arrows or WASD.</li>
-                <li>Wrong direction breaks streak—timing matters.</li>
-              </ul>
+              <div class="tutorial-body">
+                <p class="hint">New here? Run the quick tutorial to learn controls and try a short round.</p>
+                <div class="keybind-icons">
+                  <span class="icon">←</span>
+                  <span class="icon">↓</span>
+                  <span class="icon">↑</span>
+                  <span class="icon">→</span>
+                  <span class="icon">W</span>
+                  <span class="icon">A</span>
+                  <span class="icon">S</span>
+                  <span class="icon">D</span>
+                </div>
+                <button class="primary" id="startTutorialButton">Start Tutorial</button>
+              </div>
             </div>
 
             <div class="play-grid">
@@ -131,17 +140,7 @@
                   <span id="levelLabel">Club Intro</span>
                 </div>
               </div>
-              <div class="panel">
-                <div class="panel-header">
-                  <h2>Focus Rules</h2>
-                  <span class="hint">No spam, no clutter</span>
-                </div>
-                <ul class="bullet-list">
-                  <li>Only the next note can be hit.</li>
-                  <li>Wrong key = miss and streak break.</li>
-                  <li>Use Reset between level/track changes.</li>
-                </ul>
-              </div>
+              <!-- Focus rules removed in favor of tutorial onboarding -->
             </div>
           </section>
 
@@ -187,7 +186,7 @@
             <div class="page-header">
               <div>
                 <h1>Tracks</h1>
-                <p class="subtitle">MJ-only official previews.</p>
+                <p class="subtitle">Any song mode with API-powered previews.</p>
               </div>
             </div>
             <div class="panel" id="tracksPanel"></div>
@@ -200,7 +199,7 @@
                 <p class="subtitle">Top performances per level.</p>
               </div>
               <div class="header-actions">
-                <select id="leaderboardLevelSelect"></select>
+                <select id="leaderboardLevelSelect" disabled><option value="all">Global Top 50</option></select>
               </div>
             </div>
             <div class="panel" id="leaderboardPanel"></div>
@@ -240,6 +239,9 @@
                   <input type="text" id="favoriteTrackInput" />
                 </label>
               </div>
+              <div class="form-actions">
+                <button type="button" class="primary" id="saveProfileButton">Save Profile</button>
+              </div>
             </div>
           </section>
 
@@ -247,15 +249,32 @@
             <div class="page-header">
               <div>
                 <h1>Controls</h1>
-                <p class="subtitle">Keep it simple: arrows or WASD.</p>
+                <p class="subtitle">Set your own keybinds for each direction.</p>
               </div>
             </div>
             <div class="panel">
-              <ul class="bullet-list">
-                <li>Arrow keys or WASD to hit notes.</li>
-                <li>Space toggles pause during play.</li>
-                <li>Reset between level/track changes.</li>
-              </ul>
+              <div class="controls-grid" id="controlsGrid">
+                <label>
+                  Left
+                  <input type="text" id="bindLeft" maxlength="20" placeholder="Press a key" />
+                </label>
+                <label>
+                  Down
+                  <input type="text" id="bindDown" maxlength="20" placeholder="Press a key" />
+                </label>
+                <label>
+                  Up
+                  <input type="text" id="bindUp" maxlength="20" placeholder="Press a key" />
+                </label>
+                <label>
+                  Right
+                  <input type="text" id="bindRight" maxlength="20" placeholder="Press a key" />
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="ghost" id="resetKeybinds">Reset Keybinds</button>
+              </div>
+              <p class="hint">Tip: click a field and press any key (letters, arrows, etc.). Space still toggles pause during gameplay.</p>
             </div>
           </section>
 
@@ -286,6 +305,13 @@
                     <option value="medium" selected>Medium</option>
                     <option value="large">Large</option>
                   </select>
+                </label>
+                <label>
+                  Timing Offset (ms)
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <input type="range" id="timingOffsetInput" min="-200" max="200" step="1" />
+                    <span id="timingOffsetValue">0ms</span>
+                  </div>
                 </label>
                 <label>
                   Lane Scale
@@ -382,9 +408,14 @@
           </div>
           <div class="setup-grid">
             <label>
-              Track (MJ-only)
+              Track
               <select id="setupTrackSelect"></select>
             </label>
+            <label>
+              Any Song Search
+              <input type="text" id="setupCustomTrackInput" placeholder="Type any song name" />
+            </label>
+            <button class="ghost setup-custom-track" id="setupCustomTrackButton" type="button">Use Custom Song</button>
             <label>
               Level
               <select id="setupLevelSelect"></select>
@@ -444,6 +475,8 @@
           <span class="status-chip" id="gameRunStatus">Ready</span>
           <span class="game-status-meta" id="gameStatusMeta">Level 1 · Billie Jean</span>
         </div>
+        <div class="key-hud" id="keyHud" aria-hidden="true"></div>
+        <div class="upcoming" id="upcomingNote" aria-hidden="true"></div>
       </div>
       <div class="game-hud">
         <div class="hud-card">
@@ -496,6 +529,10 @@
             <span class="label">FX</span>
             <span id="fxIndicator">Medium</span>
           </div>
+          <div class="panel-row">
+            <span class="label">Track Preview</span>
+          </div>
+          <div class="track-embed game-track-embed" id="gameTrackEmbed"></div>
         </div>
       </div>
       <div class="game-controls">

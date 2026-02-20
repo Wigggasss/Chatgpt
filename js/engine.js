@@ -56,6 +56,12 @@ const spawnNote = (now, direction) => {
   note.textContent = directionSymbols[direction];
   note.style.top = `${directionRows[direction]}%`;
   note.style.left = `${dom.lane.clientWidth}px`;
+  // scale note slightly with level speed to aid visibility at high speeds
+  const level = getLevel();
+  const baseSpeed = 300;
+  const extra = Math.max(0, (level.speedPxPerSec - baseSpeed) / 600);
+  const scale = Math.min(1.35, 1 + extra);
+  note.style.transform = `translate(-50%, -50%) scale(${scale})`;
   dom.lane.appendChild(note);
   notes.push({
     id: now,
@@ -114,7 +120,8 @@ export const handleHit = (direction) => {
   const elapsed = (now - note.spawnTime) / 1000;
   const x = laneWidth - elapsed * level.speedPxPerSec;
   const diff = Math.abs(x - hitX);
-  const diffMs = (diff / level.speedPxPerSec) * 1000;
+  const offset = state.selection.timingOffset || 0;
+  const diffMs = (diff / level.speedPxPerSec) * 1000 - offset;
 
   if (diffMs <= level.wOkayMs) {
     const grade = diffMs <= level.wPerfectMs ? "perfect" : diffMs <= level.wGoodMs ? "good" : "okay";
@@ -142,6 +149,8 @@ export const handleHit = (direction) => {
   return "miss";
 };
 
+export const peekNextNote = () => (notes.length ? notes[0].direction : null);
+
 const registerHit = (grade) => {
   state.run.hits += 1;
   state.run.totalHit += 1;
@@ -166,6 +175,13 @@ const registerHit = (grade) => {
   }
   const multiplier = 1 + Math.floor(state.run.streak / 8) * 0.2;
   state.run.score += Math.round(points * multiplier);
+  // Visual lane feedback for hits
+  try {
+    dom.lane.classList.add(`grade-${grade}`);
+    setTimeout(() => dom.lane.classList.remove(`grade-${grade}`), 160);
+  } catch (e) {
+    // ignore DOM errors in non-browser environments
+  }
 };
 
 const registerMiss = () => {
@@ -173,6 +189,13 @@ const registerMiss = () => {
   state.run.missCount += 1;
   state.run.streak = 0;
   dom.timingFeedback.textContent = "Miss";
+  // Visual feedback for miss
+  try {
+    dom.lane.classList.add("grade-miss");
+    setTimeout(() => dom.lane.classList.remove("grade-miss"), 200);
+  } catch (e) {
+    // ignore
+  }
 };
 
 export const startRun = () => {
@@ -240,7 +263,7 @@ export const resetRun = () => {
   resetLock = true;
   setTimeout(() => {
     resetLock = false;
-  }, 150);
+  }, 300);
 
   if (state.run.rafId) {
     cancelAnimationFrame(state.run.rafId);
@@ -283,6 +306,13 @@ export const endRun = () => {
     cancelAnimationFrame(state.run.rafId);
     state.run.rafId = null;
   }
+  if (state.run.timerId) {
+    clearInterval(state.run.timerId);
+    state.run.timerId = null;
+  }
+  notes.forEach((note) => note.element.remove());
+  notes.length = 0;
+  resetPatternState();
   setState((draft) => {
     draft.run.running = false;
     draft.run.paused = false;

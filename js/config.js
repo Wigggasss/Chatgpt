@@ -22,95 +22,91 @@ export const levels = [
 
 export const tracks = [
   {
-    id: "billie-jean",
-    name: "Billie Jean",
-    bpm: 117,
-    embedUrl: "https://www.youtube-nocookie.com/embed/Zi_XLOBDo_Y",
+    id: "neon-pulse",
+    name: "Neon Pulse",
+    bpm: 128,
+    instrument: "Synthwave",
+    apiQuery: "Neon Pulse",
   },
   {
-    id: "beat-it",
-    name: "Beat It",
-    bpm: 138,
-    embedUrl: "https://www.youtube-nocookie.com/embed/oRdxUFDoQe0",
+    id: "sunset-guitar",
+    name: "Sunset Guitar",
+    bpm: 96,
+    instrument: "Acoustic Guitar",
+    apiQuery: "Sunset Guitar",
   },
   {
-    id: "thriller",
-    name: "Thriller",
-    bpm: 118,
-    embedUrl: "https://www.youtube-nocookie.com/embed/sOnqjkJTMaA",
+    id: "city-drums",
+    name: "City Drums",
+    bpm: 144,
+    instrument: "Drumline",
+    apiQuery: "City Drums",
   },
   {
-    id: "smooth-criminal",
-    name: "Smooth Criminal",
-    bpm: 118,
-    embedUrl: "https://www.youtube-nocookie.com/embed/h_D3VFfhvs4",
+    id: "retro-keys",
+    name: "Retro Keys",
+    bpm: 112,
+    instrument: "Electric Piano",
+    apiQuery: "Retro Keys",
   },
   {
-    id: "rock-with-you",
-    name: "Rock With You",
-    bpm: 114,
-    embedUrl: "https://www.youtube-nocookie.com/embed/5X-Mrc2l1d0",
+    id: "orchestral-rise",
+    name: "Orchestral Rise",
+    bpm: 84,
+    instrument: "Strings & Brass",
+    apiQuery: "Orchestral Rise",
   },
   {
-    id: "dont-stop",
-    name: "Don't Stop 'Til You Get Enough",
-    bpm: 120,
-    embedUrl: "https://www.youtube-nocookie.com/embed/1xu0J9tKAFc",
+    id: "bassline-rush",
+    name: "Bassline Rush",
+    bpm: 160,
+    instrument: "Electronic Bass",
+    apiQuery: "Bassline Rush",
   },
 ];
 
 export const trackProfiles = {
-  "billie-jean": {
+  "neon-pulse": {
     segments: [
-      { durationSec: 18, spacingMs: 560, directions: ["left", "down", "right", "up"] },
-      { durationSec: 14, spacingMs: 520, directions: ["left", "right", "left", "right", "down", "up"] },
-      { durationSec: 12, spacingMs: 600, directions: ["left", "down", "right", "up"] },
-      { durationSec: 10, spacingMs: 480, directions: ["left", "left", "right", "down", "up"] },
-      { durationSec: 12, spacingMs: 540, directions: ["left", "down", "right", "up"] },
+      { durationSec: 12, spacingMs: 520, directions: ["left", "down", "right", "up"] },
+      { durationSec: 12, spacingMs: 430, directions: ["left", "right", "left", "right", "up"] },
+      { durationSec: 10, spacingMs: 380, directions: ["down", "left", "right", "up", "right"] },
+      { durationSec: 10, spacingMs: 450, directions: ["left", "down", "right", "up"] },
     ],
   },
-  "thriller": {
+  "sunset-guitar": {
     segments: [
-      { durationSec: 10, spacingMs: 700, directions: ["down", "left", "right", "up"] },
-      { durationSec: 8, spacingMs: 420, directions: ["left", "right", "left", "down", "up"] },
-      { durationSec: 10, spacingMs: 680, directions: ["down", "down", "left", "right"] },
-      { durationSec: 8, spacingMs: 360, directions: ["left", "right", "up", "down", "up"] },
-      { durationSec: 14, spacingMs: 620, directions: ["left", "down", "right", "up"] },
+      { durationSec: 16, spacingMs: 690, directions: ["left", "up", "right", "down"] },
+      { durationSec: 14, spacingMs: 620, directions: ["left", "right", "up", "down"] },
+      { durationSec: 12, spacingMs: 560, directions: ["left", "down", "right", "up"] },
     ],
   },
-  "smooth-criminal": {
+  "city-drums": {
     segments: [
-      { durationSec: 12, spacingMs: 460, directions: ["left", "right", "left", "right"] },
-      { durationSec: 10, spacingMs: 420, directions: ["left", "right", "down", "up"] },
-      { durationSec: 10, spacingMs: 380, directions: ["left", "right", "left", "right", "down"] },
-      { durationSec: 12, spacingMs: 440, directions: ["down", "up", "left", "right"] },
-      { durationSec: 10, spacingMs: 400, directions: ["left", "right", "left", "right", "up"] },
+      { durationSec: 10, spacingMs: 420, directions: ["down", "down", "left", "right", "up"] },
+      { durationSec: 12, spacingMs: 340, directions: ["left", "right", "left", "right", "down", "up"] },
+      { durationSec: 10, spacingMs: 370, directions: ["down", "left", "right", "down", "up"] },
     ],
   },
-  "beat-it": {
+  "retro-keys": {
     segments: [
-      { durationSec: 8, spacingMs: 480, directions: ["down", "right", "left", "up"] },
-      { durationSec: 10, spacingMs: 360, directions: ["left", "right", "left", "right", "down", "up"] },
-      { durationSec: 12, spacingMs: 420, directions: ["down", "left", "right", "down", "up"] },
-      { durationSec: 10, spacingMs: 340, directions: ["left", "right", "left", "right", "down", "up"] },
-      { durationSec: 12, spacingMs: 440, directions: ["down", "down", "left", "right", "up"] },
+      { durationSec: 14, spacingMs: 600, directions: ["left", "up", "right", "up"] },
+      { durationSec: 10, spacingMs: 500, directions: ["left", "right", "down", "up"] },
+      { durationSec: 10, spacingMs: 460, directions: ["left", "down", "right", "up"] },
     ],
   },
-  "rock-with-you": {
+  "orchestral-rise": {
     segments: [
-      { durationSec: 16, spacingMs: 620, directions: ["left", "down", "right", "up"] },
-      { durationSec: 12, spacingMs: 580, directions: ["left", "right", "down", "up"] },
-      { durationSec: 12, spacingMs: 640, directions: ["left", "down", "right", "up"] },
-      { durationSec: 10, spacingMs: 560, directions: ["left", "right", "left", "down", "up"] },
+      { durationSec: 18, spacingMs: 760, directions: ["left", "up", "right", "down"] },
+      { durationSec: 12, spacingMs: 620, directions: ["down", "left", "right", "up"] },
+      { durationSec: 12, spacingMs: 520, directions: ["left", "right", "up", "down", "up"] },
     ],
   },
-  "dont-stop": {
+  "bassline-rush": {
     segments: [
-      { durationSec: 12, spacingMs: 520, directions: ["down", "left", "right", "up"] },
-      { durationSec: 10, spacingMs: 480, directions: ["left", "right", "down", "up"] },
-      { durationSec: 12, spacingMs: 460, directions: ["down", "left", "right", "down", "up"] },
-      { durationSec: 10, spacingMs: 420, directions: ["left", "right", "left", "right", "up"] },
-      { durationSec: 10, spacingMs: 500, directions: ["left", "down", "right", "up"] },
+      { durationSec: 8, spacingMs: 360, directions: ["left", "right", "left", "right", "down"] },
+      { durationSec: 10, spacingMs: 320, directions: ["down", "left", "right", "up", "down", "up"] },
+      { durationSec: 12, spacingMs: 340, directions: ["left", "right", "left", "right", "up"] },
     ],
   },
   default: {
@@ -151,7 +147,7 @@ export const choreography = {
 
 export const globalConfigDefaults = {
   featuredLevelId: 1,
-  featuredTrackId: "billie-jean",
+  featuredTrackId: "neon-pulse",
   globalThemeId: "neon-purple",
   announcementBannerText: "Welcome to Moonwalk Mania.",
   leaderboardRules: "Fair play only. Scores validated server-side.",

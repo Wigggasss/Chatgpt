@@ -12,17 +12,35 @@ export const getSupabaseClient = async () => {
   return supabaseClient;
 };
 
-export const fetchLeaderboard = async (levelId) => {
+export const fetchLeaderboard = async (levelId = "all") => {
   const client = await getSupabaseClient();
   if (!client) {
-    return JSON.parse(localStorage.getItem(`leaderboard-${levelId}`) || "[]");
+    const keys = Object.keys(localStorage).filter((key) => key.startsWith("leaderboard-"));
+    let buckets = [];
+    if (levelId === "all") {
+      buckets = keys.flatMap((key) => JSON.parse(localStorage.getItem(key) || "[]"));
+    } else {
+      const levelKey = `leaderboard-${levelId}`;
+      buckets = JSON.parse(localStorage.getItem(levelKey) || "[]");
+    }
+    return buckets.sort((a, b) => b.score - a.score).slice(0, 50).map((row) => ({
+      playerName: row.playerName || row.player_name || "Unknown",
+      score: row.score || 0,
+      accuracy: typeof row.accuracy === "number" ? row.accuracy : Math.round((row.accuracy || 1) * 100),
+      streakMax: row.streakMax || row.streak_max || 0,
+      track: row.track || row.track_id || "-",
+      date: row.date || row.created_at || new Date().toISOString(),
+    }));
   }
-  const { data, error } = await client
+  const query = client
     .from("scores")
     .select("player_name,score,accuracy,streak_max,track_id,created_at")
-    .eq("level_id", levelId)
     .order("score", { ascending: false })
     .limit(50);
+  if (levelId !== "all") {
+    query.eq("level_id", levelId);
+  }
+  const { data, error } = await query;
   if (error) throw error;
   return data.map((row) => ({
     playerName: row.player_name,
@@ -82,7 +100,24 @@ export const publishGlobalConfig = async (data) => {
 
 export const saveProfile = async (profile) => {
   const client = await getSupabaseClient();
-  if (!client || !state.auth.user) return;
+  if (!client) {
+    // local fallback: save profile to localStorage keyed by user id if available, otherwise global guest
+    const uid = state.auth.user ? state.auth.user.id : "guest";
+    const key = `profile-${uid}`;
+    const toSave = {
+      displayName: profile.displayName,
+      themeId: profile.themeId,
+      layout: profile.layout,
+      noteSize: profile.noteSize,
+      laneScale: profile.laneScale,
+      fx: profile.fx,
+      lastLevelId: profile.lastLevelId,
+      lastTrackId: profile.lastTrackId,
+    };
+    localStorage.setItem(key, JSON.stringify(toSave));
+    return { status: "Saved locally" };
+  }
+  if (!state.auth.user) return;
   await client.from("profiles").upsert({
     user_id: state.auth.user.id,
     display_name: profile.displayName,
