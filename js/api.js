@@ -84,7 +84,24 @@ export const publishGlobalConfig = async (data) => {
 
 export const saveProfile = async (profile) => {
   const client = await getSupabaseClient();
-  if (!client || !state.auth.user) return;
+  if (!client) {
+    // local fallback: save profile to localStorage keyed by user id if available, otherwise global guest
+    const uid = state.auth.user ? state.auth.user.id : "guest";
+    const key = `profile-${uid}`;
+    const toSave = {
+      displayName: profile.displayName,
+      themeId: profile.themeId,
+      layout: profile.layout,
+      noteSize: profile.noteSize,
+      laneScale: profile.laneScale,
+      fx: profile.fx,
+      lastLevelId: profile.lastLevelId,
+      lastTrackId: profile.lastTrackId,
+    };
+    localStorage.setItem(key, JSON.stringify(toSave));
+    return { status: "Saved locally" };
+  }
+  if (!state.auth.user) return;
   await client.from("profiles").upsert({
     user_id: state.auth.user.id,
     display_name: profile.displayName,
