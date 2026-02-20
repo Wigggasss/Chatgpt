@@ -84,19 +84,60 @@ Suggested checks:
 - max score by time window
 - valid level/track ids
 
-## Admin Roles & Workflow
+## Admin Access
 
-Roles:
-- viewer: read-only
-- mod: moderation
-- admin: config + debug
-- superadmin: rollback
+Admin tools are accessible via **Ctrl+Shift+Alt+M** hotkey. The console opens a Minecraft-style terminal where you can execute commands using the `/category subcommand` format.
 
-Admin draft + publish:
-1. Open Admin page with **Ctrl+Shift+Alt+M** (or reveal via Konami if role allows).
-2. Enter the admin access code `moonwalk` in the Admin Access gate to unlock tools.
-3. Draft changes are local only.
-4. Click **Publish** to push global_config updates and broadcast to all clients.
+To unlock admin access:
+1. Press **Ctrl+Shift+Alt+M** to open the admin console.
+2. Enter the access code `moonwalk`.
+3. Use admin commands to manage game state, reset scores, spawn notes, and more.
+
+## Admin Commands
+
+Commands use the format: `/category subcommand [args]`
+
+Examples:
+- `/game status` - Show game state
+- `/game reset` - Reset current run
+- `/score show` - Display leaderboard
+- `/level set 3` - Change level
+- `/song play` - Play current song
+- `/notes spawn 4` - Spawn notes
+- `/help` - List all commands
+
+Categories:
+- **game**: start, pause, resume, reset, status, speed
+- **score**: show, set, add, reset
+- **level**: set, list, next, previous
+- **song**: set, list, play
+- **notes**: spawn, clear, freeze, speed
+- **hud**: show, hide, scale, reset
+- **debug**: fps, state, log, reset
+
+## Game Controls & Input
+
+- **Arrow Keys** or **WASD** to hit notes
+- Input debounce: **15ms** (optimized for single taps in rhythm games)
+- **Space** to pause/resume
+- **R** to reset run
+- **Ctrl+Shift+Alt+M** to open/close admin console
+- **Ctrl+Shift+Alt+K** for Konami code (admin unlock, if role allows)
+
+## Game Improvements
+
+### Visual Enhancements
+- **Lane Separators**: Visual guides for lane boundaries
+- **Randomized Note Spawn**: Notes spawn at random horizontal positions to prevent stacking
+- **Improved Note Visibility**: Larger note sizes (40x40 to 64x64 px) for better visibility in fast songs
+- **Vertical-Only Layout**: Full-screen vertical game scene for immersive gameplay
+
+### Gameplay Refinements
+- **Real-time HUD Updates**: Score, streak, accuracy, and time update instantly during gameplay
+- **Proper Reset**: All stats, notes, and UI elements clear correctly on reset
+- **Better Hit Detection**: Collision-based hit detection with visual feedback
+- **Jump Scare Effect**: Loading animation on game start (optional with FX toggle)
+
 
 ## Sync Behavior
 
