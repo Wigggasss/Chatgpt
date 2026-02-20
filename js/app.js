@@ -433,6 +433,9 @@ const bindEvents = () => {
 
   dom.resetButton.addEventListener("click", () => {
     resetRun();
+    updateHUD();
+    updateUpcomingHud();
+    dom.timingFeedback.textContent = "Press Start to begin.";
     toggleSetupOverlay(true);
     setRunStatus("Ready");
     dom.pauseButton.disabled = true;

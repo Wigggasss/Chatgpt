@@ -280,7 +280,12 @@ export const resetRun = () => {
     clearInterval(state.run.timerId);
     state.run.timerId = null;
   }
-  notes.forEach((note) => note.element.remove());
+  // Completely clear all notes from DOM
+  notes.forEach((note) => {
+    if (note.element && note.element.parentNode) {
+      note.element.remove();
+    }
+  });
   notes.length = 0;
   resetPatternState();
 
