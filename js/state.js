@@ -18,6 +18,12 @@ export const state = {
     laneScale: 1,
     fx: "medium",
     dancer: "low",
+    keybinds: {
+      left: "arrowleft",
+      down: "arrowdown",
+      up: "arrowup",
+      right: "arrowright",
+    },
   },
   run: {
     running: false,

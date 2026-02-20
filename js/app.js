@@ -157,15 +157,23 @@ const updateDancer = (grade) => {
   dom.dancer.className = `dancer-silhouette ${choice} ${state.selection.dancer}`;
 };
 
-const keyToDirection = {
-  arrowleft: "left",
-  a: "left",
-  arrowdown: "down",
-  s: "down",
-  arrowup: "up",
-  w: "up",
-  arrowright: "right",
-  d: "right",
+const formatKeyLabel = (key) => {
+  if (!key) return "";
+  if (key.startsWith("arrow")) {
+    return `Arrow ${key.replace("arrow", "").replace(/^./, (ch) => ch.toUpperCase())}`;
+  }
+  if (key === " ") return "Space";
+  return key.length === 1 ? key.toUpperCase() : key;
+};
+
+const resolveDirectionFromKey = (key) => {
+  const lowered = key.toLowerCase();
+  const binds = state.selection.keybinds;
+  if (lowered === binds.left) return "left";
+  if (lowered === binds.down) return "down";
+  if (lowered === binds.up) return "up";
+  if (lowered === binds.right) return "right";
+  return null;
 };
 
 const handleKeydown = (event) => {
@@ -173,7 +181,7 @@ const handleKeydown = (event) => {
   const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName);
   if (isTyping) return;
   const key = event.key.toLowerCase();
-  const direction = keyToDirection[key];
+  const direction = resolveDirectionFromKey(key);
   if (direction) {
     const grade = handleHit(direction) || "good";
     updateDancer(grade);
@@ -195,6 +203,10 @@ const syncSetupControls = () => {
   dom.setupLaneScaleInput.value = state.selection.laneScale;
   dom.setupFxSelect.value = state.selection.fx;
   dom.setupDancerSelect.value = state.selection.dancer;
+  dom.bindLeft.value = formatKeyLabel(state.selection.keybinds.left);
+  dom.bindDown.value = formatKeyLabel(state.selection.keybinds.down);
+  dom.bindUp.value = formatKeyLabel(state.selection.keybinds.up);
+  dom.bindRight.value = formatKeyLabel(state.selection.keybinds.right);
 };
 
 const syncSelection = () => {
@@ -226,6 +238,15 @@ const toggleSetupOverlay = (visible) => {
   dom.setupRunHint.textContent = state.run.running
     ? "Reset to change settings."
     : "Choose settings before starting.";
+};
+
+const resetKeybindsToDefault = () => {
+  applySelection("keybinds", {
+    left: "arrowleft",
+    down: "arrowdown",
+    up: "arrowup",
+    right: "arrowright",
+  });
 };
 
 const applySelection = (key, value) => {
@@ -411,6 +432,24 @@ const bindEvents = () => {
   dom.setupFxSelect.addEventListener("change", () => applySelection("fx", dom.setupFxSelect.value));
   dom.setupDancerSelect.addEventListener("change", () => applySelection("dancer", dom.setupDancerSelect.value));
 
+  const bindFields = [
+    [dom.bindLeft, "left"],
+    [dom.bindDown, "down"],
+    [dom.bindUp, "up"],
+    [dom.bindRight, "right"],
+  ];
+
+  bindFields.forEach(([input, direction]) => {
+    input.addEventListener("keydown", (event) => {
+      event.preventDefault();
+      const key = event.key.toLowerCase();
+      const next = { ...state.selection.keybinds, [direction]: key };
+      applySelection("keybinds", next);
+    });
+  });
+
+  dom.resetKeybinds.addEventListener("click", resetKeybindsToDefault);
+
   dom.setupLoginButton.addEventListener("click", () => {
     setGameSceneActive(false);
     setActivePage("profile");
@@ -461,6 +500,7 @@ const init = async () => {
   updateSettingsForm();
   applyTheme(state.selection.themeId);
   renderTrackEmbed();
+  syncSelection();
   toggleSetupOverlay(true);
   bindEvents();
   bindAuthActions();

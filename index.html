@@ -247,15 +247,32 @@
             <div class="page-header">
               <div>
                 <h1>Controls</h1>
-                <p class="subtitle">Keep it simple: arrows or WASD.</p>
+                <p class="subtitle">Set your own keybinds for each direction.</p>
               </div>
             </div>
             <div class="panel">
-              <ul class="bullet-list">
-                <li>Arrow keys or WASD to hit notes.</li>
-                <li>Space toggles pause during play.</li>
-                <li>Reset between level/track changes.</li>
-              </ul>
+              <div class="controls-grid" id="controlsGrid">
+                <label>
+                  Left
+                  <input type="text" id="bindLeft" maxlength="20" placeholder="Press a key" />
+                </label>
+                <label>
+                  Down
+                  <input type="text" id="bindDown" maxlength="20" placeholder="Press a key" />
+                </label>
+                <label>
+                  Up
+                  <input type="text" id="bindUp" maxlength="20" placeholder="Press a key" />
+                </label>
+                <label>
+                  Right
+                  <input type="text" id="bindRight" maxlength="20" placeholder="Press a key" />
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="ghost" id="resetKeybinds">Reset Keybinds</button>
+              </div>
+              <p class="hint">Tip: click a field and press any key (letters, arrows, etc.). Space still toggles pause during gameplay.</p>
             </div>
           </section>
 

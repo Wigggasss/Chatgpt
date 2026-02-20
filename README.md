@@ -87,9 +87,10 @@ Roles:
 - superadmin: rollback
 
 Admin draft + publish:
-1. Use the Admin Console (Konami code) to draft changes.
-2. Draft changes are local only.
-3. Click **Publish** to push global_config updates and broadcast to all clients.
+1. Open Admin page with **Ctrl+Shift+M** (or reveal via Konami if role allows).
+2. Enter the admin access code `moonwalk` in the Admin Access gate to unlock tools.
+3. Draft changes are local only.
+4. Click **Publish** to push global_config updates and broadcast to all clients.
 
 ## Sync Behavior
 
